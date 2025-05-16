@@ -74,5 +74,5 @@ public enum Tokens {
     COMENTARIO,       // //
     
     // Otros
-    ERROR,
+    ERROR;
 }

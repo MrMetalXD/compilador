@@ -4,17 +4,78 @@
  */
 package codigo;
 
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.util.ArrayList;
+import javax.swing.event.DocumentEvent;
+import javax.swing.event.DocumentListener;
+import compilerTools.Functions;
+import compilerTools.Token;
+import compilerTools.Directory;
+import java.awt.event.WindowAdapter;
+import javax.swing.JFrame;
 /**
  *
  * @author estebanramoncontrerasortega
  */
 public class Ventana_Principal extends javax.swing.JFrame {
-
+    NumeroLinea numerolinea;
+    private String title;
+    private Directory directorio;
+    private ArrayList<Token> tokens;
+    private ArrayList<Token> tokensError;
+    
     /**
      * Creates new form Ventana_Principal
      */
     public Ventana_Principal() {
         initComponents();
+        inicializar();
+    }
+    
+     private void inicializar (){
+        
+        setTitle("#WheelScript");
+        setLocationRelativeTo(null);
+        
+        directorio = new Directory(this, jtpCode, title, ".wscript");
+        
+         addWindowListener(new WindowAdapter (){
+             public void windowClosing(){
+                 directorio.Exit();
+                 System.exit(0);
+             }
+         });
+        
+        //Numero de linea
+        numerolinea = new NumeroLinea(jtpCode);
+        jScrollPane1.setRowHeaderView(numerolinea);
+        
+        // Listener para actualizar números de línea
+        jtpCode.getDocument().addDocumentListener(new DocumentListener() {
+        @Override
+        public void insertUpdate(DocumentEvent e) {
+            numerolinea.repaint();
+        }
+
+        @Override
+        public void removeUpdate(DocumentEvent e) {
+            numerolinea.repaint();
+        }
+
+        @Override
+        public void changedUpdate(DocumentEvent e) {
+            numerolinea.repaint();
+        }
+    });
+        tokens = new ArrayList<>();
+        tokensError = new ArrayList<>();
+        
     }
 
     /**
@@ -27,111 +88,278 @@ public class Ventana_Principal extends javax.swing.JFrame {
     private void initComponents() {
 
         Barra_Nav = new javax.swing.JMenuItem();
-        Panel_Errores = new javax.swing.JScrollPane();
+        jPanel3 = new javax.swing.JPanel();
         jScrollPane1 = new javax.swing.JScrollPane();
-        jSeparator1 = new javax.swing.JSeparator();
-        Nav_Bar = new javax.swing.JMenuBar();
-        Archivo_Option = new javax.swing.JMenu();
-        Archivo_New_Option = new javax.swing.JMenuItem();
-        Archivo_Abrir_Nuevo_Option = new javax.swing.JMenuItem();
-        Guardar_Option = new javax.swing.JMenu();
-        Compilar_Option = new javax.swing.JMenu();
-        Tablas_Option = new javax.swing.JMenu();
-        Tabla_Fija_Option = new javax.swing.JMenuItem();
-        Tabla_De_Simbolos_Option = new javax.swing.JMenuItem();
-        Tabla_Lexico_Option = new javax.swing.JMenuItem();
+        jtpCode = new javax.swing.JTextArea();
+        Panel_Errores = new javax.swing.JScrollPane();
+        jtaOutputConsole = new javax.swing.JTextArea();
+        jPanel1 = new javax.swing.JPanel();
+        btnNuevo = new javax.swing.JButton();
+        btnAbrir = new javax.swing.JButton();
+        btnGuardar = new javax.swing.JButton();
+        btnTablaSimbolos = new javax.swing.JButton();
+        btCompilar = new javax.swing.JButton();
+        jScrollPane2 = new javax.swing.JScrollPane();
+        tblTokens = new javax.swing.JTable();
 
         Barra_Nav.setText("jMenuItem6");
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
+        setBackground(new java.awt.Color(255, 248, 231));
 
-        Panel_Errores.setBackground(new java.awt.Color(255, 255, 255));
+        jPanel3.setBackground(new java.awt.Color(255, 248, 231));
 
         jScrollPane1.setBackground(new java.awt.Color(255, 255, 255));
         jScrollPane1.setBorder(javax.swing.BorderFactory.createEtchedBorder());
 
-        Archivo_Option.setText("Archivo");
-
-        Archivo_New_Option.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_N, java.awt.event.InputEvent.CTRL_DOWN_MASK));
-        Archivo_New_Option.setText("Nuevo");
-        Archivo_New_Option.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                Archivo_New_OptionActionPerformed(evt);
+        jtpCode.setColumns(20);
+        jtpCode.setRows(5);
+        jtpCode.addKeyListener(new java.awt.event.KeyAdapter() {
+            public void keyReleased(java.awt.event.KeyEvent evt) {
+                jtpCodeKeyReleased(evt);
             }
         });
-        Archivo_Option.add(Archivo_New_Option);
+        jScrollPane1.setViewportView(jtpCode);
 
-        Archivo_Abrir_Nuevo_Option.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_A, java.awt.event.InputEvent.CTRL_DOWN_MASK));
-        Archivo_Abrir_Nuevo_Option.setText("Abrir Archivo");
-        Archivo_Abrir_Nuevo_Option.addActionListener(new java.awt.event.ActionListener() {
+        Panel_Errores.setBackground(new java.awt.Color(255, 255, 255));
+        Panel_Errores.setBorder(new javax.swing.border.SoftBevelBorder(javax.swing.border.BevelBorder.RAISED));
+
+        jtaOutputConsole.setColumns(20);
+        jtaOutputConsole.setRows(5);
+        jtaOutputConsole.setDisabledTextColor(java.awt.Color.white);
+        jtaOutputConsole.setEnabled(false);
+        Panel_Errores.setViewportView(jtaOutputConsole);
+
+        jPanel1.setBackground(new java.awt.Color(182, 239, 212));
+
+        btnNuevo.setText("Nuevo");
+        btnNuevo.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                Archivo_Abrir_Nuevo_OptionActionPerformed(evt);
+                btnNuevoActionPerformed(evt);
             }
         });
-        Archivo_Option.add(Archivo_Abrir_Nuevo_Option);
 
-        Nav_Bar.add(Archivo_Option);
+        btnAbrir.setText("Abrir");
 
-        Guardar_Option.setText("Guardar");
-        Nav_Bar.add(Guardar_Option);
+        btnGuardar.setText("Guardar");
+        btnGuardar.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnGuardarActionPerformed(evt);
+            }
+        });
 
-        Compilar_Option.setText("Compilar");
-        Nav_Bar.add(Compilar_Option);
+        btnTablaSimbolos.setText("Tabla de simbolos");
+        btnTablaSimbolos.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnTablaSimbolosActionPerformed(evt);
+            }
+        });
 
-        Tablas_Option.setText("Tablas Simbolos");
+        btCompilar.setText("Compilar");
+        btCompilar.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btCompilarActionPerformed(evt);
+            }
+        });
 
-        Tabla_Fija_Option.setText("Tabla Fija");
-        Tablas_Option.add(Tabla_Fija_Option);
+        javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
+        jPanel1.setLayout(jPanel1Layout);
+        jPanel1Layout.setHorizontalGroup(
+            jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(jPanel1Layout.createSequentialGroup()
+                .addGap(28, 28, 28)
+                .addComponent(btnNuevo)
+                .addGap(18, 18, 18)
+                .addComponent(btnAbrir)
+                .addGap(27, 27, 27)
+                .addComponent(btnGuardar)
+                .addGap(18, 18, 18)
+                .addComponent(btnTablaSimbolos)
+                .addGap(18, 18, 18)
+                .addComponent(btCompilar)
+                .addContainerGap(45, Short.MAX_VALUE))
+        );
+        jPanel1Layout.setVerticalGroup(
+            jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(jPanel1Layout.createSequentialGroup()
+                .addGap(17, 17, 17)
+                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(btnNuevo)
+                    .addComponent(btnAbrir)
+                    .addComponent(btnGuardar)
+                    .addComponent(btnTablaSimbolos)
+                    .addComponent(btCompilar))
+                .addContainerGap(14, Short.MAX_VALUE))
+        );
 
-        Tabla_De_Simbolos_Option.setText("Tabla De Simbólos");
-        Tablas_Option.add(Tabla_De_Simbolos_Option);
+        tblTokens.setModel(new javax.swing.table.DefaultTableModel(
+            new Object [][] {
 
-        Tabla_Lexico_Option.setText("Tabla Léxico");
-        Tablas_Option.add(Tabla_Lexico_Option);
+            },
+            new String [] {
+                "Componente Léxico", "Lexema", "[Línea, Columa]"
+            }
+        ));
+        jScrollPane2.setViewportView(tblTokens);
 
-        Nav_Bar.add(Tablas_Option);
-
-        setJMenuBar(Nav_Bar);
+        javax.swing.GroupLayout jPanel3Layout = new javax.swing.GroupLayout(jPanel3);
+        jPanel3.setLayout(jPanel3Layout);
+        jPanel3Layout.setHorizontalGroup(
+            jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(jPanel3Layout.createSequentialGroup()
+                .addGap(22, 22, 22)
+                .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(jPanel1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addGroup(jPanel3Layout.createSequentialGroup()
+                        .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 695, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(Panel_Errores, javax.swing.GroupLayout.PREFERRED_SIZE, 692, javax.swing.GroupLayout.PREFERRED_SIZE))
+                        .addGap(50, 50, 50)
+                        .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, 373, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                .addContainerGap(19, Short.MAX_VALUE))
+        );
+        jPanel3Layout.setVerticalGroup(
+            jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(jPanel3Layout.createSequentialGroup()
+                .addGap(18, 18, 18)
+                .addComponent(jPanel1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(34, 34, 34)
+                .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                    .addGroup(jPanel3Layout.createSequentialGroup()
+                        .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 281, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                        .addComponent(Panel_Errores, javax.swing.GroupLayout.PREFERRED_SIZE, 111, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, 0, Short.MAX_VALUE))
+                .addContainerGap(29, Short.MAX_VALUE))
+        );
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
-                .addContainerGap()
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(jScrollPane1)
-                    .addComponent(Panel_Errores, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, 978, Short.MAX_VALUE)
-                    .addComponent(jSeparator1))
+                .addComponent(jPanel3, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                 .addContainerGap())
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
-                .addContainerGap()
-                .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 398, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                .addComponent(jSeparator1, javax.swing.GroupLayout.PREFERRED_SIZE, 12, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(18, 18, 18)
-                .addComponent(Panel_Errores, javax.swing.GroupLayout.DEFAULT_SIZE, 174, Short.MAX_VALUE)
-                .addContainerGap())
+                .addComponent(jPanel3, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
 
         pack();
     }// </editor-fold>//GEN-END:initComponents
 
-    private void Archivo_Abrir_Nuevo_OptionActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_Archivo_Abrir_Nuevo_OptionActionPerformed
+    private void btnNuevoActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnNuevoActionPerformed
         // TODO add your handling code here:
-    }//GEN-LAST:event_Archivo_Abrir_Nuevo_OptionActionPerformed
+    }//GEN-LAST:event_btnNuevoActionPerformed
 
-    private void Archivo_New_OptionActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_Archivo_New_OptionActionPerformed
+    private void btnGuardarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnGuardarActionPerformed
         // TODO add your handling code here:
-        System.out.println("hola");
-    }//GEN-LAST:event_Archivo_New_OptionActionPerformed
+    }//GEN-LAST:event_btnGuardarActionPerformed
+
+    private void btnTablaSimbolosActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnTablaSimbolosActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_btnTablaSimbolosActionPerformed
+
+    private void btCompilarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btCompilarActionPerformed
+        if(getTitle().contains("*")|| getTitle().equals(title)){
+            if(directorio.Save()){
+                compilar();
+            }
+        } else {
+            compilar();
+        }
+        
+        JFrame frame = new JFrame("Tabla de tokens");
+        frame.setSize(300, 500);
+        frame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+        frame.add(jScrollPane2);
+        frame.setVisible(true);
+        frame.setLocationRelativeTo(null);
+        frame.setResizable(true);
+    }//GEN-LAST:event_btCompilarActionPerformed
+
+    private void jtpCodeKeyReleased(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_jtpCodeKeyReleased
+        int keyCode = evt.getKeyCode();
+        if ((keyCode >= 65 && keyCode <= 90) ||    // A-Z
+            (keyCode >= 48 && keyCode <= 57) ||    // 0-9
+            (keyCode >= 97 && keyCode <= 122) ||   // a-z
+            (keyCode != 27 &&                     // No Escape
+             !(keyCode >= 37 && keyCode <= 40) && // No flechas
+             !(keyCode >= 16 && keyCode <= 18) && // No Shift, Ctrl, Alt
+             keyCode != 524 &&                    // No tecla de menú (tecla Windows derecha)
+             keyCode != 20))                      // No Caps Lock
+        {
+            if (!getTitle().contains("*")) {
+                setTitle(getTitle() + "*");
+            }
+              
+        }
+    }//GEN-LAST:event_jtpCodeKeyReleased
 
     /**
      * @param args the command line arguments
      */
+    
+   
+    
+    private void compilar() {
+        limpiarCampos();
+        analisisLexico();
+        llenarTablaTokens();
+        //imprimirConsola();
+    }
+    
+    private void analisisLexico() {
+        WheelScriptLexer lexer;
+        try {
+            File codigo = new File("codigo.wscript");
+            FileOutputStream salida = new FileOutputStream(codigo);
+            byte[] contenido = jtpCode.getText().getBytes();
+            salida.write(contenido);
+            
+            BufferedReader entrada = new BufferedReader(
+                    new InputStreamReader(new FileInputStream(codigo), "UTF8")
+            );
+            
+            lexer = new WheelScriptLexer(entrada);
+            
+            while(true){
+                Token token = (Token) lexer.yylex();
+                if (token == null){
+                    break;
+                }
+                tokens.add(token);
+                if(token.getLexicalComp().equals("ERROR")){
+                    tokensError.add(token);
+                }
+            
+            }
+             
+        }catch (FileNotFoundException ex){
+            System.out.println("Archivo no encontrado: "+ ex.getMessage());
+        }catch (IOException ex){
+            System.out.println("Error de lectura o escritura "+ ex.getMessage());
+        }
+        
+    }
+    
+    private void llenarTablaTokens(){
+        tokens.forEach(token -> {
+            Object[] data = new Object[]{token.getLexicalComp(), token.getLexeme(),  "[" + token.getLine() + ", " + token.getColumn() + "]"};
+            Functions.addRowDataInTable(tblTokens, data);
+        });
+        
+    }
+    
+    private void limpiarCampos(){
+        Functions.clearDataInTable(tblTokens);
+        jtaOutputConsole.setText("");
+        tokens.clear();
+    }
+
     public static void main(String args[]) {
         /* Set the Nimbus look and feel */
         //<editor-fold defaultstate="collapsed" desc=" Look and feel setting code (optional) ">
@@ -163,21 +391,24 @@ public class Ventana_Principal extends javax.swing.JFrame {
             }
         });
     }
-
+    
+    public void clearAllComp() {
+        jtaOutputConsole.setText("");
+    }
     // Variables declaration - do not modify//GEN-BEGIN:variables
-    private javax.swing.JMenuItem Archivo_Abrir_Nuevo_Option;
-    private javax.swing.JMenuItem Archivo_New_Option;
-    private javax.swing.JMenu Archivo_Option;
     private javax.swing.JMenuItem Barra_Nav;
-    private javax.swing.JMenu Compilar_Option;
-    private javax.swing.JMenu Guardar_Option;
-    private javax.swing.JMenuBar Nav_Bar;
     private javax.swing.JScrollPane Panel_Errores;
-    private javax.swing.JMenuItem Tabla_De_Simbolos_Option;
-    private javax.swing.JMenuItem Tabla_Fija_Option;
-    private javax.swing.JMenuItem Tabla_Lexico_Option;
-    private javax.swing.JMenu Tablas_Option;
+    private javax.swing.JButton btCompilar;
+    private javax.swing.JButton btnAbrir;
+    private javax.swing.JButton btnGuardar;
+    private javax.swing.JButton btnNuevo;
+    private javax.swing.JButton btnTablaSimbolos;
+    private javax.swing.JPanel jPanel1;
+    private javax.swing.JPanel jPanel3;
     private javax.swing.JScrollPane jScrollPane1;
-    private javax.swing.JSeparator jSeparator1;
+    private javax.swing.JScrollPane jScrollPane2;
+    private javax.swing.JTextArea jtaOutputConsole;
+    private javax.swing.JTextArea jtpCode;
+    private javax.swing.JTable tblTokens;
     // End of variables declaration//GEN-END:variables
 }
