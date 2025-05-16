@@ -140,6 +140,11 @@ public class Ventana_Principal extends javax.swing.JFrame {
         });
 
         btnAbrir.setText("Abrir");
+        btnAbrir.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnAbrirActionPerformed(evt);
+            }
+        });
 
         btnGuardar.setText("Guardar");
         btnGuardar.addActionListener(new java.awt.event.ActionListener() {
@@ -298,6 +303,26 @@ public class Ventana_Principal extends javax.swing.JFrame {
               
         }
     }//GEN-LAST:event_jtpCodeKeyReleased
+
+    private void btnAbrirActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnAbrirActionPerformed
+        // TODO add your handling code here:
+        javax.swing.JFileChooser fileChooser = new javax.swing.JFileChooser();
+    int result = fileChooser.showOpenDialog(null);
+    if (result == javax.swing.JFileChooser.APPROVE_OPTION) {
+        File selectedFile = fileChooser.getSelectedFile();
+        try (BufferedReader reader = new BufferedReader(
+                new InputStreamReader(new FileInputStream(selectedFile), "UTF8"))) {
+            jtpCode.setText(""); // Limpiar el área de texto
+            String line;
+            while ((line = reader.readLine()) != null) {
+                jtpCode.append(line + "\n");
+            }
+            setTitle(selectedFile.getName()); // Cambiar título de ventana
+        } catch (IOException ex) {
+            System.err.println("Error al leer el archivo: " + ex.getMessage());
+        }
+    }
+    }//GEN-LAST:event_btnAbrirActionPerformed
 
     /**
      * @param args the command line arguments
