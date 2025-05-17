@@ -4,6 +4,7 @@
  */
 package codigo;
 
+import compilerTools.CodeBlock;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
@@ -17,11 +18,13 @@ import javax.swing.event.DocumentListener;
 import compilerTools.Functions;
 import compilerTools.Token;
 import compilerTools.Directory;
+import compilerTools.ErrorLSSL;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Font;
 import java.awt.event.WindowAdapter;
 import javax.swing.JFrame;
+import javax.swing.JOptionPane;
 import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
 /**
@@ -34,6 +37,8 @@ public class Ventana_Principal extends javax.swing.JFrame {
     private Directory directorio;
     private ArrayList<Token> tokens;
     private ArrayList<Token> tokensError;
+    private ArrayList<ErrorLSSL> errores;
+    private boolean codeHasBeenCompiled = false;
     
     /**
      * Creates new form Ventana_Principal
@@ -61,6 +66,7 @@ public class Ventana_Principal extends javax.swing.JFrame {
         numerolinea = new NumeroLinea(jtpCode);
         jScrollPane1.setRowHeaderView(numerolinea);
         
+        
         // Listener para actualizar números de línea
         jtpCode.getDocument().addDocumentListener(new DocumentListener() {
         @Override
@@ -80,6 +86,7 @@ public class Ventana_Principal extends javax.swing.JFrame {
     });
         tokens = new ArrayList<>();
         tokensError = new ArrayList<>();
+        errores = new ArrayList<>();
         
     }
 
@@ -106,6 +113,7 @@ public class Ventana_Principal extends javax.swing.JFrame {
         btCompilar = new javax.swing.JButton();
         jScrollPane2 = new javax.swing.JScrollPane();
         tblTokens = new javax.swing.JTable();
+        jLabel1 = new javax.swing.JLabel();
 
         Barra_Nav.setText("jMenuItem6");
 
@@ -132,7 +140,6 @@ public class Ventana_Principal extends javax.swing.JFrame {
         jtaOutputConsole.setColumns(20);
         jtaOutputConsole.setRows(5);
         jtaOutputConsole.setDisabledTextColor(java.awt.Color.white);
-        jtaOutputConsole.setEnabled(false);
         Panel_Errores.setViewportView(jtaOutputConsole);
 
         jPanel1.setBackground(new java.awt.Color(182, 239, 212));
@@ -212,6 +219,9 @@ public class Ventana_Principal extends javax.swing.JFrame {
         ));
         jScrollPane2.setViewportView(tblTokens);
 
+        jLabel1.setFont(new java.awt.Font("Segoe UI", 1, 14)); // NOI18N
+        jLabel1.setText("Tabla de Tokens");
+
         javax.swing.GroupLayout jPanel3Layout = new javax.swing.GroupLayout(jPanel3);
         jPanel3.setLayout(jPanel3Layout);
         jPanel3Layout.setHorizontalGroup(
@@ -225,7 +235,9 @@ public class Ventana_Principal extends javax.swing.JFrame {
                             .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 695, javax.swing.GroupLayout.PREFERRED_SIZE)
                             .addComponent(Panel_Errores, javax.swing.GroupLayout.PREFERRED_SIZE, 692, javax.swing.GroupLayout.PREFERRED_SIZE))
                         .addGap(50, 50, 50)
-                        .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, 373, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                        .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, 373, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(jLabel1, javax.swing.GroupLayout.PREFERRED_SIZE, 151, javax.swing.GroupLayout.PREFERRED_SIZE))))
                 .addContainerGap(19, Short.MAX_VALUE))
         );
         jPanel3Layout.setVerticalGroup(
@@ -233,7 +245,9 @@ public class Ventana_Principal extends javax.swing.JFrame {
             .addGroup(jPanel3Layout.createSequentialGroup()
                 .addGap(18, 18, 18)
                 .addComponent(jPanel1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(34, 34, 34)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(jLabel1)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                 .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
                     .addGroup(jPanel3Layout.createSequentialGroup()
                         .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 281, javax.swing.GroupLayout.PREFERRED_SIZE)
@@ -270,7 +284,8 @@ public class Ventana_Principal extends javax.swing.JFrame {
     }//GEN-LAST:event_btnGuardarActionPerformed
 
     private void btnTablaSimbolosActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnTablaSimbolosActionPerformed
-        JFrame tokenViwer = new JFrame("Tabla de simbolos");
+
+    JFrame tokenViwer = new JFrame("Tabla de simbolos");
     tokenViwer.setSize(600, 500); // Aumenté el tamaño para mejor visualización
     tokenViwer.setLocationRelativeTo(null);
     tokenViwer.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
@@ -367,21 +382,28 @@ public class Ventana_Principal extends javax.swing.JFrame {
     }//GEN-LAST:event_btnTablaSimbolosActionPerformed
 
     private void btCompilarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btCompilarActionPerformed
+        boolean exito;
+        
         if(getTitle().contains("*")|| getTitle().equals(title)){
-            if(directorio.Save()){
-                compilar();
-            }
+            exito = directorio.Save() && analisisLexico();
         } else {
-            compilar();
+            exito = compilar();
         }
         
-        JFrame frame = new JFrame("Tabla de tokens");
-        frame.setSize(300, 500);
-        frame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
-        frame.add(jScrollPane2);
-        frame.setVisible(true);
-        frame.setLocationRelativeTo(null);
-        frame.setResizable(true);
+        if(exito) {
+            JFrame frame = new JFrame("Tabla de tokens");
+            frame.setSize(300, 500);
+            frame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+            frame.add(jScrollPane2);
+            frame.setVisible(true);
+            frame.setLocationRelativeTo(null);
+            frame.setResizable(true);
+            
+        }
+        
+        
+       
+        
     }//GEN-LAST:event_btCompilarActionPerformed
 
     private void jtpCodeKeyReleased(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_jtpCodeKeyReleased
@@ -428,19 +450,35 @@ public class Ventana_Principal extends javax.swing.JFrame {
     
    
     
-    private void compilar() {
+    private boolean compilar() {
         limpiarCampos();
-        analisisLexico();
-        llenarTablaTokens();
+        
+        boolean exito = analisisLexico();
+        
+        if(exito){
+            llenarTablaTokens();
+        }
+        
+        return exito;
+        
         //imprimirConsola();
     }
     
-private void analisisLexico() {
+private boolean analisisLexico() {
     try {
+        String codigoFuente = jtpCode.getText().trim();
+            
+        if (codigoFuente.isEmpty()) {
+            jtaOutputConsole.setForeground(Color.RED);
+            jtaOutputConsole.setText("NO HAY CODIGO QUE COMPILAR.");
+            return false;
+        }
+        
         File codigo = new File("codigo.wscript");
         FileOutputStream salida = new FileOutputStream(codigo);
         byte[] contenido = jtpCode.getText().getBytes();
         salida.write(contenido);
+        salida.close();
 
         BufferedReader entrada = new BufferedReader(
             new InputStreamReader(new FileInputStream(codigo), "UTF8")
@@ -457,31 +495,32 @@ private void analisisLexico() {
                 tokensError.add(token);
             }
         }
+        
+        
 
-if (!tokensError.isEmpty()) {
-    StringBuilder errores = new StringBuilder("Errores léxicos encontrados:\n\n");
-    for (compilerTools.Token t : tokensError) {
-        errores.append("Línea ").append(t.getLine())
-               .append(" Columna ").append(t.getColumn())
-               .append(" → ").append(t.getLexeme()).append("\n");
-    }
+        if (!tokensError.isEmpty()) {
+            StringBuilder errores = new StringBuilder("Errores léxicos encontrados:\n\n");
+            for (compilerTools.Token t : tokensError) {
+                errores.append("Línea ").append(t.getLine())
+                       .append(" Columna ").append(t.getColumn())
+                       .append(" → ").append(t.getLexeme()).append("\n");
+            }
 
-    jtaOutputConsole.setForeground(Color.RED);
-    jtaOutputConsole.setText("");
-    jtaOutputConsole.setText(errores.toString());
+            jtaOutputConsole.setForeground(Color.RED);
+            jtaOutputConsole.setText("");
+            jtaOutputConsole.setText(errores.toString());
+            return false;
+        }
 
-    return; // 
-}
+        jtaOutputConsole.setForeground(Color.BLUE);
+        jtaOutputConsole.setText("COMPILACION EXITOSA. SIN ERRORES LÉXICOS.");
+        llenarTablaTokens();
 
-jtaOutputConsole.setForeground(Color.BLACK);
-jtaOutputConsole.setText("Compilación exitosa. Sin errores léxicos.");
-llenarTablaTokens();
-
-    } catch (Exception ex) {
-        jtaOutputConsole.setForeground(Color.RED);
-        jtaOutputConsole.setText("Error: " + ex.getMessage());
-    }
-
+        } catch (Exception ex) {
+            jtaOutputConsole.setForeground(Color.RED);
+            jtaOutputConsole.setText("Error: " + ex.getMessage());
+        }
+        return false;
 }
     
     private void llenarTablaTokens(){
@@ -541,6 +580,7 @@ llenarTablaTokens();
     private javax.swing.JButton btnGuardar;
     private javax.swing.JButton btnNuevo;
     private javax.swing.JButton btnTablaSimbolos;
+    private javax.swing.JLabel jLabel1;
     private javax.swing.JPanel jPanel1;
     private javax.swing.JPanel jPanel3;
     private javax.swing.JScrollPane jScrollPane1;
