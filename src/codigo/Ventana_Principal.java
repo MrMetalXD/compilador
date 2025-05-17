@@ -17,8 +17,13 @@ import javax.swing.event.DocumentListener;
 import compilerTools.Functions;
 import compilerTools.Token;
 import compilerTools.Directory;
+import java.awt.BorderLayout;
+import java.awt.Color;
+import java.awt.Font;
 import java.awt.event.WindowAdapter;
 import javax.swing.JFrame;
+import javax.swing.JScrollPane;
+import javax.swing.JTextArea;
 /**
  *
  * @author estebanramoncontrerasortega
@@ -140,6 +145,11 @@ public class Ventana_Principal extends javax.swing.JFrame {
         });
 
         btnAbrir.setText("Abrir");
+        btnAbrir.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnAbrirActionPerformed(evt);
+            }
+        });
 
         btnGuardar.setText("Guardar");
         btnGuardar.addActionListener(new java.awt.event.ActionListener() {
@@ -260,7 +270,100 @@ public class Ventana_Principal extends javax.swing.JFrame {
     }//GEN-LAST:event_btnGuardarActionPerformed
 
     private void btnTablaSimbolosActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnTablaSimbolosActionPerformed
-        // TODO add your handling code here:
+        JFrame tokenViwer = new JFrame("Tabla de simbolos");
+    tokenViwer.setSize(600, 500); // Aumenté el tamaño para mejor visualización
+    tokenViwer.setLocationRelativeTo(null);
+    tokenViwer.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+    
+    JTextArea textArea = new JTextArea();
+    textArea.setEditable(false);
+    textArea.setFont(new Font("Monospaced", Font.PLAIN, 14));
+    
+    StringBuilder tokens = new StringBuilder();
+    tokens.append("LISTA COMPLETA DE TOKENS\n");
+    tokens.append("========================\n\n");
+        
+        tokens.append("1. IDENTIFICADORES Y LITERALES:\n");
+        tokens.append("   IDENTIFICADOR\n");
+        tokens.append("   NUMERO\n");
+        tokens.append("   CADENA\n\n");
+        
+        tokens.append("2. COMANDOS DE ACCIÓN:\n");
+        tokens.append("   AVANZAR\n");
+        tokens.append("   GIRAR\n");
+        tokens.append("   DETENER\n");
+        tokens.append("   ESPERAR\n");
+        tokens.append("   MOSTRAR\n");
+        tokens.append("   LEER\n");
+        tokens.append("   RETROCEDER\n");
+        tokens.append("   ENCENDER\n");
+        tokens.append("   APAGAR\n");
+        tokens.append("   BOCINA\n\n");
+        
+        tokens.append("3. ESTRUCTURA DE CONTROL:\n");
+        tokens.append("   REPETIR\n");
+        tokens.append("   MIENTRAS\n");
+        tokens.append("   SI\n");
+        tokens.append("   ENTONCES\n");
+        tokens.append("   SINO\n");
+        tokens.append("   FIN\n");
+        tokens.append("   ROMPER\n");
+        tokens.append("   CONTINUAR\n\n");
+        
+        tokens.append("4. ESTRUCTURA DEL PROGRAMA:\n");
+        tokens.append("   INICIO\n");
+        tokens.append("   FUNCION\n");
+        tokens.append("   RETORNAR\n\n");
+        
+        tokens.append("5. DECLARACIONES:\n");
+        tokens.append("   VARIABLE\n");
+        tokens.append("   CONSTANTE\n\n");
+        
+        tokens.append("6. SENSORES Y CONDICIONES:\n");
+        tokens.append("   SENSOR_FRONTAL\n");
+        tokens.append("   SENSOR_IZQUIERDO\n");
+        tokens.append("   SENSOR_DERECHO\n");
+        tokens.append("   ACTIVADO\n");
+        tokens.append("   INACTIVO\n\n");
+        
+        tokens.append("7. TIPOS DE DATOS:\n");
+        tokens.append("   ENTERO\n");
+        tokens.append("   DECIMAL\n");
+        tokens.append("   TEXTO\n\n");
+        
+        tokens.append("8. OPERADORES:\n");
+        tokens.append("   IGUAL            ( = )\n");
+        tokens.append("   DIFERENTE        ( != )\n");
+        tokens.append("   MAYOR            ( > )\n");
+        tokens.append("   MENOR            ( < )\n");
+        tokens.append("   MAYOR_IGUAL      ( >= )\n");
+        tokens.append("   MENOR_IGUAL      ( <= )\n");
+        tokens.append("   AND              ( y )\n");
+        tokens.append("   OR               ( o )\n");
+        tokens.append("   NO               ( negación )\n\n");
+        
+        tokens.append("9. SÍMBOLOS:\n");
+        tokens.append("   LLAVE_ABRE       ( { )\n");
+        tokens.append("   LLAVE_CIERRA     ( } )\n");
+        tokens.append("   CORCHETE_ABRE    ( [ )\n");
+        tokens.append("   CORCHETE_CIERRA  ( ] )\n");
+        tokens.append("   PAR_ABRE         ( ( )\n");
+        tokens.append("   PAR_CIERRA       ( ) )\n");
+        tokens.append("   COMA            ( , )\n");
+        tokens.append("   PUNTOCOMA       ( ; )\n");
+        tokens.append("   COMILLA_DOBLE   ( \" )\n");
+        tokens.append("   COMENTARIO      ( // )\n\n");
+        
+        tokens.append("10. OTROS:\n");
+        tokens.append("    ERROR\n");
+        
+        textArea.setText(tokens.toString());
+        add(new JScrollPane(textArea), BorderLayout.CENTER);
+        textArea.setText(tokens.toString());
+        JScrollPane scrollPane = new JScrollPane(textArea);
+        tokenViwer.getContentPane().add(scrollPane, BorderLayout.CENTER);
+    
+        tokenViwer.setVisible(true);
     }//GEN-LAST:event_btnTablaSimbolosActionPerformed
 
     private void btCompilarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btCompilarActionPerformed
@@ -299,6 +402,26 @@ public class Ventana_Principal extends javax.swing.JFrame {
         }
     }//GEN-LAST:event_jtpCodeKeyReleased
 
+    private void btnAbrirActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnAbrirActionPerformed
+        // TODO add your handling code here:
+        javax.swing.JFileChooser fileChooser = new javax.swing.JFileChooser();
+    int result = fileChooser.showOpenDialog(null);
+    if (result == javax.swing.JFileChooser.APPROVE_OPTION) {
+        File selectedFile = fileChooser.getSelectedFile();
+        try (BufferedReader reader = new BufferedReader(
+                new InputStreamReader(new FileInputStream(selectedFile), "UTF8"))) {
+            jtpCode.setText(""); // Limpiar el área de texto
+            String line;
+            while ((line = reader.readLine()) != null) {
+                jtpCode.append(line + "\n");
+            }
+            setTitle(selectedFile.getName()); // Cambiar título de ventana
+        } catch (IOException ex) {
+            System.err.println("Error al leer el archivo: " + ex.getMessage());
+        }
+    }
+    }//GEN-LAST:event_btnAbrirActionPerformed
+
     /**
      * @param args the command line arguments
      */
@@ -312,39 +435,54 @@ public class Ventana_Principal extends javax.swing.JFrame {
         //imprimirConsola();
     }
     
-    private void analisisLexico() {
-        WheelScriptLexer lexer;
-        try {
-            File codigo = new File("codigo.wscript");
-            FileOutputStream salida = new FileOutputStream(codigo);
-            byte[] contenido = jtpCode.getText().getBytes();
-            salida.write(contenido);
-            
-            BufferedReader entrada = new BufferedReader(
-                    new InputStreamReader(new FileInputStream(codigo), "UTF8")
-            );
-            
-            lexer = new WheelScriptLexer(entrada);
-            
-            while(true){
-                Token token = (Token) lexer.yylex();
-                if (token == null){
-                    break;
-                }
-                tokens.add(token);
-                if(token.getLexicalComp().equals("ERROR")){
-                    tokensError.add(token);
-                }
-            
+private void analisisLexico() {
+    try {
+        File codigo = new File("codigo.wscript");
+        FileOutputStream salida = new FileOutputStream(codigo);
+        byte[] contenido = jtpCode.getText().getBytes();
+        salida.write(contenido);
+
+        BufferedReader entrada = new BufferedReader(
+            new InputStreamReader(new FileInputStream(codigo), "UTF8")
+        );
+
+        WheelScriptLexer lexer = new WheelScriptLexer(entrada);
+        tokens.clear();
+        tokensError.clear();
+
+        compilerTools.Token token;
+        while ((token = lexer.yylex()) != null) {
+            tokens.add(token);
+            if ("ERROR".equals(token.getLexicalComp())) {
+                tokensError.add(token);
             }
-             
-        }catch (FileNotFoundException ex){
-            System.out.println("Archivo no encontrado: "+ ex.getMessage());
-        }catch (IOException ex){
-            System.out.println("Error de lectura o escritura "+ ex.getMessage());
         }
-        
+
+if (!tokensError.isEmpty()) {
+    StringBuilder errores = new StringBuilder("Errores léxicos encontrados:\n\n");
+    for (compilerTools.Token t : tokensError) {
+        errores.append("Línea ").append(t.getLine())
+               .append(" Columna ").append(t.getColumn())
+               .append(" → ").append(t.getLexeme()).append("\n");
     }
+
+    jtaOutputConsole.setForeground(Color.RED);
+    jtaOutputConsole.setText("");
+    jtaOutputConsole.setText(errores.toString());
+
+    return; // 
+}
+
+jtaOutputConsole.setForeground(Color.BLACK);
+jtaOutputConsole.setText("Compilación exitosa. Sin errores léxicos.");
+llenarTablaTokens();
+
+    } catch (Exception ex) {
+        jtaOutputConsole.setForeground(Color.RED);
+        jtaOutputConsole.setText("Error: " + ex.getMessage());
+    }
+
+}
     
     private void llenarTablaTokens(){
         tokens.forEach(token -> {
