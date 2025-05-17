@@ -23,15 +23,21 @@ import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Font;
 import java.awt.event.WindowAdapter;
+import java.io.BufferedWriter;
+import java.io.FileWriter;
+import java.nio.file.Files;
+import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;
 import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
+
 /**
  *
- * @author estebanramoncontrerasortega
+ * @author estebanramoncontrerasortega made in MacBook
  */
 public class Ventana_Principal extends javax.swing.JFrame {
+
     NumeroLinea numerolinea;
     private String title;
     private Directory directorio;
@@ -39,55 +45,68 @@ public class Ventana_Principal extends javax.swing.JFrame {
     private ArrayList<Token> tokensError;
     private ArrayList<ErrorLSSL> errores;
     private boolean codeHasBeenCompiled = false;
-    
-    /**
-     * Creates new form Ventana_Principal
-     */
+    private File archivoActual = null; // para saber si se abrió o guardó un archivo
+    private boolean cambiosGuardados = false; // para saber si se necesita guardar antes de compilar
+
     public Ventana_Principal() {
         initComponents();
         inicializar();
     }
-    
-     private void inicializar (){
-        
+
+    private void inicializar() {
+
         setTitle("#WheelScript");
         setLocationRelativeTo(null);
-        
+        btCompilar.setEnabled(false);
+
         directorio = new Directory(this, jtpCode, title, ".wscript");
-        
-         addWindowListener(new WindowAdapter (){
-             public void windowClosing(){
-                 directorio.Exit();
-                 System.exit(0);
-             }
-         });
-        
+
+        addWindowListener(new WindowAdapter() {
+            public void windowClosing() {
+                directorio.Exit();
+                System.exit(0);
+            }
+        });
+
         //Numero de linea
         numerolinea = new NumeroLinea(jtpCode);
         jScrollPane1.setRowHeaderView(numerolinea);
-        
-        
+        jtpCode.setEditable(true);
+
         // Listener para actualizar números de línea
         jtpCode.getDocument().addDocumentListener(new DocumentListener() {
-        @Override
-        public void insertUpdate(DocumentEvent e) {
-            numerolinea.repaint();
-        }
+            @Override
+            public void insertUpdate(DocumentEvent e) {
+                numerolinea.repaint();
+            }
 
-        @Override
-        public void removeUpdate(DocumentEvent e) {
-            numerolinea.repaint();
-        }
+            @Override
+            public void removeUpdate(DocumentEvent e) {
+                numerolinea.repaint();
+            }
 
-        @Override
-        public void changedUpdate(DocumentEvent e) {
-            numerolinea.repaint();
-        }
-    });
+            @Override
+            public void changedUpdate(DocumentEvent e) {
+                numerolinea.repaint();
+            }
+        });
         tokens = new ArrayList<>();
         tokensError = new ArrayList<>();
         errores = new ArrayList<>();
-        
+        jtpCode.getDocument().addDocumentListener(new DocumentListener() {
+            public void insertUpdate(DocumentEvent e) {
+                cambiosGuardados = false;
+            }
+
+            public void removeUpdate(DocumentEvent e) {
+                cambiosGuardados = false;
+            }
+
+            public void changedUpdate(DocumentEvent e) {
+                cambiosGuardados = false;
+            }
+        });
+
     }
 
     /**
@@ -114,6 +133,7 @@ public class Ventana_Principal extends javax.swing.JFrame {
         jScrollPane2 = new javax.swing.JScrollPane();
         tblTokens = new javax.swing.JTable();
         jLabel1 = new javax.swing.JLabel();
+        lblNombreArchivo = new javax.swing.JLabel();
 
         Barra_Nav.setText("jMenuItem6");
 
@@ -222,6 +242,10 @@ public class Ventana_Principal extends javax.swing.JFrame {
         jLabel1.setFont(new java.awt.Font("Segoe UI", 1, 14)); // NOI18N
         jLabel1.setText("Tabla de Tokens");
 
+        lblNombreArchivo.setText("Archivo Nuevo");
+        lblNombreArchivo.setBorder(javax.swing.BorderFactory.createBevelBorder(javax.swing.border.BevelBorder.RAISED));
+        lblNombreArchivo.setEnabled(false);
+
         javax.swing.GroupLayout jPanel3Layout = new javax.swing.GroupLayout(jPanel3);
         jPanel3.setLayout(jPanel3Layout);
         jPanel3Layout.setHorizontalGroup(
@@ -237,14 +261,18 @@ public class Ventana_Principal extends javax.swing.JFrame {
                         .addGap(50, 50, 50)
                         .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                             .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, 373, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addComponent(jLabel1, javax.swing.GroupLayout.PREFERRED_SIZE, 151, javax.swing.GroupLayout.PREFERRED_SIZE))))
+                            .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                                .addComponent(lblNombreArchivo)
+                                .addComponent(jLabel1, javax.swing.GroupLayout.PREFERRED_SIZE, 151, javax.swing.GroupLayout.PREFERRED_SIZE)))))
                 .addContainerGap(19, Short.MAX_VALUE))
         );
         jPanel3Layout.setVerticalGroup(
             jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(jPanel3Layout.createSequentialGroup()
                 .addGap(18, 18, 18)
-                .addComponent(jPanel1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(jPanel1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(lblNombreArchivo))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(jLabel1)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
@@ -277,32 +305,50 @@ public class Ventana_Principal extends javax.swing.JFrame {
 
     private void btnNuevoActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnNuevoActionPerformed
         // TODO add your handling code here:
+        limpiarCampos();
+        jtpCode.setText("");
+        lblNombreArchivo.setText("Archivo Nuevo");
+        jtaOutputConsole.setText("");
+        btCompilar.setEnabled(false);
     }//GEN-LAST:event_btnNuevoActionPerformed
 
     private void btnGuardarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnGuardarActionPerformed
         // TODO add your handling code here:
+        if (archivoActual == null) { // si es nuevo
+            JFileChooser fileChooser = new JFileChooser();
+            if (fileChooser.showSaveDialog(null) == JFileChooser.APPROVE_OPTION) {
+                archivoActual = fileChooser.getSelectedFile();
+                guardarArchivo();
+                actualizarNombreArchivo();
+                btCompilar.setEnabled(true);
+
+            }
+        } else { // si ya tiene nombre
+            guardarArchivo();
+            btCompilar.setEnabled(true);
+        }
     }//GEN-LAST:event_btnGuardarActionPerformed
 
     private void btnTablaSimbolosActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnTablaSimbolosActionPerformed
 
-    JFrame tokenViwer = new JFrame("Tabla de simbolos");
-    tokenViwer.setSize(600, 500); // Aumenté el tamaño para mejor visualización
-    tokenViwer.setLocationRelativeTo(null);
-    tokenViwer.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
-    
-    JTextArea textArea = new JTextArea();
-    textArea.setEditable(false);
-    textArea.setFont(new Font("Monospaced", Font.PLAIN, 14));
-    
-    StringBuilder tokens = new StringBuilder();
-    tokens.append("LISTA COMPLETA DE TOKENS\n");
-    tokens.append("========================\n\n");
-        
+        JFrame tokenViwer = new JFrame("Tabla de simbolos");
+        tokenViwer.setSize(600, 500); // Aumenté el tamaño para mejor visualización
+        tokenViwer.setLocationRelativeTo(null);
+        tokenViwer.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+
+        JTextArea textArea = new JTextArea();
+        textArea.setEditable(false);
+        textArea.setFont(new Font("Monospaced", Font.PLAIN, 14));
+
+        StringBuilder tokens = new StringBuilder();
+        tokens.append("LISTA COMPLETA DE TOKENS\n");
+        tokens.append("========================\n\n");
+
         tokens.append("1. IDENTIFICADORES Y LITERALES:\n");
         tokens.append("   IDENTIFICADOR\n");
         tokens.append("   NUMERO\n");
         tokens.append("   CADENA\n\n");
-        
+
         tokens.append("2. COMANDOS DE ACCIÓN:\n");
         tokens.append("   AVANZAR\n");
         tokens.append("   GIRAR\n");
@@ -314,7 +360,7 @@ public class Ventana_Principal extends javax.swing.JFrame {
         tokens.append("   ENCENDER\n");
         tokens.append("   APAGAR\n");
         tokens.append("   BOCINA\n\n");
-        
+
         tokens.append("3. ESTRUCTURA DE CONTROL:\n");
         tokens.append("   REPETIR\n");
         tokens.append("   MIENTRAS\n");
@@ -324,28 +370,28 @@ public class Ventana_Principal extends javax.swing.JFrame {
         tokens.append("   FIN\n");
         tokens.append("   ROMPER\n");
         tokens.append("   CONTINUAR\n\n");
-        
+
         tokens.append("4. ESTRUCTURA DEL PROGRAMA:\n");
         tokens.append("   INICIO\n");
         tokens.append("   FUNCION\n");
         tokens.append("   RETORNAR\n\n");
-        
+
         tokens.append("5. DECLARACIONES:\n");
         tokens.append("   VARIABLE\n");
         tokens.append("   CONSTANTE\n\n");
-        
+
         tokens.append("6. SENSORES Y CONDICIONES:\n");
         tokens.append("   SENSOR_FRONTAL\n");
         tokens.append("   SENSOR_IZQUIERDO\n");
         tokens.append("   SENSOR_DERECHO\n");
         tokens.append("   ACTIVADO\n");
         tokens.append("   INACTIVO\n\n");
-        
+
         tokens.append("7. TIPOS DE DATOS:\n");
         tokens.append("   ENTERO\n");
         tokens.append("   DECIMAL\n");
         tokens.append("   TEXTO\n\n");
-        
+
         tokens.append("8. OPERADORES:\n");
         tokens.append("   IGUAL            ( = )\n");
         tokens.append("   DIFERENTE        ( != )\n");
@@ -356,7 +402,7 @@ public class Ventana_Principal extends javax.swing.JFrame {
         tokens.append("   AND              ( y )\n");
         tokens.append("   OR               ( o )\n");
         tokens.append("   NO               ( negación )\n\n");
-        
+
         tokens.append("9. SÍMBOLOS:\n");
         tokens.append("   LLAVE_ABRE       ( { )\n");
         tokens.append("   LLAVE_CIERRA     ( } )\n");
@@ -368,29 +414,23 @@ public class Ventana_Principal extends javax.swing.JFrame {
         tokens.append("   PUNTOCOMA       ( ; )\n");
         tokens.append("   COMILLA_DOBLE   ( \" )\n");
         tokens.append("   COMENTARIO      ( // )\n\n");
-        
+
         tokens.append("10. OTROS:\n");
         tokens.append("    ERROR\n");
-        
+
         textArea.setText(tokens.toString());
         add(new JScrollPane(textArea), BorderLayout.CENTER);
         textArea.setText(tokens.toString());
         JScrollPane scrollPane = new JScrollPane(textArea);
         tokenViwer.getContentPane().add(scrollPane, BorderLayout.CENTER);
-    
+
         tokenViwer.setVisible(true);
     }//GEN-LAST:event_btnTablaSimbolosActionPerformed
 
     private void btCompilarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btCompilarActionPerformed
-        boolean exito;
-        
-        if(getTitle().contains("*")|| getTitle().equals(title)){
-            exito = directorio.Save() && analisisLexico();
-        } else {
-            exito = compilar();
-        }
-        
-        if(exito) {
+        boolean exito = analisisLexico(); // O simplemente: boolean exito = compilar();
+
+        if (exito) {
             JFrame frame = new JFrame("Tabla de tokens");
             frame.setSize(300, 500);
             frame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
@@ -400,141 +440,154 @@ public class Ventana_Principal extends javax.swing.JFrame {
             frame.setResizable(true);
             
         }
-        
-        
-       
-        
+
+
     }//GEN-LAST:event_btCompilarActionPerformed
 
     private void jtpCodeKeyReleased(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_jtpCodeKeyReleased
         int keyCode = evt.getKeyCode();
-        if ((keyCode >= 65 && keyCode <= 90) ||    // A-Z
-            (keyCode >= 48 && keyCode <= 57) ||    // 0-9
-            (keyCode >= 97 && keyCode <= 122) ||   // a-z
-            (keyCode != 27 &&                     // No Escape
-             !(keyCode >= 37 && keyCode <= 40) && // No flechas
-             !(keyCode >= 16 && keyCode <= 18) && // No Shift, Ctrl, Alt
-             keyCode != 524 &&                    // No tecla de menú (tecla Windows derecha)
-             keyCode != 20))                      // No Caps Lock
+        if ((keyCode >= 65 && keyCode <= 90)
+                || // A-Z
+                (keyCode >= 48 && keyCode <= 57)
+                || // 0-9
+                (keyCode >= 97 && keyCode <= 122)
+                || // a-z
+                (keyCode != 27
+                && // No Escape
+                !(keyCode >= 37 && keyCode <= 40)
+                && // No flechas
+                !(keyCode >= 16 && keyCode <= 18)
+                && // No Shift, Ctrl, Alt
+                keyCode != 524
+                && // No tecla de menú (tecla Windows derecha)
+                keyCode != 20)) // No Caps Lock
         {
             if (!getTitle().contains("*")) {
                 setTitle(getTitle() + "*");
             }
-              
+
         }
     }//GEN-LAST:event_jtpCodeKeyReleased
 
     private void btnAbrirActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnAbrirActionPerformed
-        // TODO add your handling code here:
-        javax.swing.JFileChooser fileChooser = new javax.swing.JFileChooser();
-    int result = fileChooser.showOpenDialog(null);
-    if (result == javax.swing.JFileChooser.APPROVE_OPTION) {
-        File selectedFile = fileChooser.getSelectedFile();
-        try (BufferedReader reader = new BufferedReader(
-                new InputStreamReader(new FileInputStream(selectedFile), "UTF8"))) {
-            jtpCode.setText(""); // Limpiar el área de texto
-            String line;
-            while ((line = reader.readLine()) != null) {
-                jtpCode.append(line + "\n");
+
+        JFileChooser fileChooser = new JFileChooser();
+        if (fileChooser.showOpenDialog(null) == JFileChooser.APPROVE_OPTION) {
+            archivoActual = fileChooser.getSelectedFile();
+            try {
+                String contenido = new String(Files.readAllBytes(archivoActual.toPath()));
+                jtpCode.setText(contenido);
+                cambiosGuardados = true;
+                actualizarNombreArchivo(); // función que actualiza el nombre visible
+                btCompilar.setEnabled(true);
+            } catch (IOException ex) {
+                JOptionPane.showMessageDialog(null, "Error al abrir el archivo.");
             }
-            setTitle(selectedFile.getName()); // Cambiar título de ventana
-        } catch (IOException ex) {
-            System.err.println("Error al leer el archivo: " + ex.getMessage());
         }
-    }
     }//GEN-LAST:event_btnAbrirActionPerformed
 
     /**
      * @param args the command line arguments
      */
-    
-   
-    
     private boolean compilar() {
         limpiarCampos();
-        
+
         boolean exito = analisisLexico();
-        
-        if(exito){
+
+        if (exito) {
             llenarTablaTokens();
         }
-        
+
         return exito;
-        
+
         //imprimirConsola();
     }
-    
-private boolean analisisLexico() {
-    try {
-        String codigoFuente = jtpCode.getText().trim();
-            
-        if (codigoFuente.isEmpty()) {
-            jtaOutputConsole.setForeground(Color.RED);
-            jtaOutputConsole.setText("NO HAY CODIGO QUE COMPILAR.");
-            return false;
+
+    private void guardarArchivo() {
+        try (BufferedWriter writer = new BufferedWriter(new FileWriter(archivoActual))) {
+            writer.write(jtpCode.getText());
+            cambiosGuardados = true;
+        } catch (IOException ex) {
+            JOptionPane.showMessageDialog(null, "Error al guardar el archivo.");
         }
-        
-        File codigo = new File("codigo.wscript");
-        FileOutputStream salida = new FileOutputStream(codigo);
-        byte[] contenido = jtpCode.getText().getBytes();
-        salida.write(contenido);
-        salida.close();
+    }
 
-        BufferedReader entrada = new BufferedReader(
-            new InputStreamReader(new FileInputStream(codigo), "UTF8")
-        );
+    private boolean analisisLexico() {
+        limpiarCampos();
+        try {
+            String codigoFuente = jtpCode.getText().trim();
 
-        WheelScriptLexer lexer = new WheelScriptLexer(entrada);
-        tokens.clear();
-        tokensError.clear();
-
-        compilerTools.Token token;
-        while ((token = lexer.yylex()) != null) {
-            tokens.add(token);
-            if ("ERROR".equals(token.getLexicalComp())) {
-                tokensError.add(token);
-            }
-        }
-        
-        
-
-        if (!tokensError.isEmpty()) {
-            StringBuilder errores = new StringBuilder("Errores léxicos encontrados:\n\n");
-            for (compilerTools.Token t : tokensError) {
-                errores.append("Línea ").append(t.getLine())
-                       .append(" Columna ").append(t.getColumn())
-                       .append(" → ").append(t.getLexeme()).append("\n");
+            if (codigoFuente.isEmpty()) {
+                jtaOutputConsole.setForeground(Color.RED);
+                jtaOutputConsole.setText("NO HAY CODIGO QUE COMPILAR.");
+                return false;
             }
 
-            jtaOutputConsole.setForeground(Color.RED);
-            jtaOutputConsole.setText("");
-            jtaOutputConsole.setText(errores.toString());
-            return false;
-        }
+            File codigo = new File("codigo.wscript");
+            FileOutputStream salida = new FileOutputStream(codigo);
+            byte[] contenido = jtpCode.getText().getBytes();
+            salida.write(contenido);
+            salida.close();
 
-        jtaOutputConsole.setForeground(Color.BLUE);
-        jtaOutputConsole.setText("COMPILACION EXITOSA. SIN ERRORES LÉXICOS.");
-        llenarTablaTokens();
+            BufferedReader entrada = new BufferedReader(
+                    new InputStreamReader(new FileInputStream(codigo), "UTF8")
+            );
+
+            WheelScriptLexer lexer = new WheelScriptLexer(entrada);
+            tokens.clear();
+            tokensError.clear();
+
+            compilerTools.Token token;
+            while ((token = lexer.yylex()) != null) {
+                tokens.add(token);
+                if ("ERROR".equals(token.getLexicalComp())) {
+                    tokensError.add(token);
+                }
+            }
+
+            if (!tokensError.isEmpty()) {
+                StringBuilder errores = new StringBuilder("Errores léxicos encontrados:\n\n");
+                for (compilerTools.Token t : tokensError) {
+                    errores.append("Línea ").append(t.getLine())
+                            .append(" Columna ").append(t.getColumn())
+                            .append(" → ").append(t.getLexeme()).append("\n");
+                }
+
+                jtaOutputConsole.setForeground(Color.RED);
+                jtaOutputConsole.setText("");
+                jtaOutputConsole.setText(errores.toString());
+                return false;
+            }
+
+            jtaOutputConsole.setForeground(Color.BLUE);
+            jtaOutputConsole.setText("COMPILACION EXITOSA. SIN ERRORES LÉXICOS.");
+            llenarTablaTokens();
 
         } catch (Exception ex) {
             jtaOutputConsole.setForeground(Color.RED);
             jtaOutputConsole.setText("Error: " + ex.getMessage());
         }
         return false;
-}
-    
-    private void llenarTablaTokens(){
+    }
+
+    private void llenarTablaTokens() {
         tokens.forEach(token -> {
-            Object[] data = new Object[]{token.getLexicalComp(), token.getLexeme(),  "[" + token.getLine() + ", " + token.getColumn() + "]"};
+            Object[] data = new Object[]{token.getLexicalComp(), token.getLexeme(), "[" + token.getLine() + ", " + token.getColumn() + "]"};
             Functions.addRowDataInTable(tblTokens, data);
         });
-        
+
     }
-    
-    private void limpiarCampos(){
+
+    private void limpiarCampos() {
         Functions.clearDataInTable(tblTokens);
         jtaOutputConsole.setText("");
         tokens.clear();
+    }
+
+    private void actualizarNombreArchivo() {
+        if (archivoActual != null) {
+            lblNombreArchivo.setText("Archivo: " + archivoActual.getName());
+        }
     }
 
     public static void main(String args[]) {
@@ -568,7 +621,7 @@ private boolean analisisLexico() {
             }
         });
     }
-    
+
     public void clearAllComp() {
         jtaOutputConsole.setText("");
     }
@@ -587,6 +640,7 @@ private boolean analisisLexico() {
     private javax.swing.JScrollPane jScrollPane2;
     private javax.swing.JTextArea jtaOutputConsole;
     private javax.swing.JTextArea jtpCode;
+    private javax.swing.JLabel lblNombreArchivo;
     private javax.swing.JTable tblTokens;
     // End of variables declaration//GEN-END:variables
 }
