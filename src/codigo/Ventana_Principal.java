@@ -337,39 +337,54 @@ public class Ventana_Principal extends javax.swing.JFrame {
         //imprimirConsola();
     }
     
-    private void analisisLexico() {
-        WheelScriptLexer lexer;
-        try {
-            File codigo = new File("codigo.wscript");
-            FileOutputStream salida = new FileOutputStream(codigo);
-            byte[] contenido = jtpCode.getText().getBytes();
-            salida.write(contenido);
-            
-            BufferedReader entrada = new BufferedReader(
-                    new InputStreamReader(new FileInputStream(codigo), "UTF8")
-            );
-            
-            lexer = new WheelScriptLexer(entrada);
-            
-            while(true){
-                Token token = (Token) lexer.yylex();
-                if (token == null){
-                    break;
-                }
-                tokens.add(token);
-                if(token.getLexicalComp().equals("ERROR")){
-                    tokensError.add(token);
-                }
-            
+private void analisisLexico() {
+    try {
+        File codigo = new File("codigo.wscript");
+        FileOutputStream salida = new FileOutputStream(codigo);
+        byte[] contenido = jtpCode.getText().getBytes();
+        salida.write(contenido);
+
+        BufferedReader entrada = new BufferedReader(
+            new InputStreamReader(new FileInputStream(codigo), "UTF8")
+        );
+
+        WheelScriptLexer lexer = new WheelScriptLexer(entrada);
+        tokens.clear();
+        tokensError.clear();
+
+        compilerTools.Token token;
+        while ((token = lexer.yylex()) != null) {
+            tokens.add(token);
+            if ("ERROR".equals(token.getLexicalComp())) {
+                tokensError.add(token);
             }
-             
-        }catch (FileNotFoundException ex){
-            System.out.println("Archivo no encontrado: "+ ex.getMessage());
-        }catch (IOException ex){
-            System.out.println("Error de lectura o escritura "+ ex.getMessage());
         }
-        
+
+if (!tokensError.isEmpty()) {
+    StringBuilder errores = new StringBuilder("Errores léxicos encontrados:\n\n");
+    for (compilerTools.Token t : tokensError) {
+        errores.append("Línea ").append(t.getLine())
+               .append(" Columna ").append(t.getColumn())
+               .append(" → ").append(t.getLexeme()).append("\n");
     }
+
+    jtaOutputConsole.setForeground(Color.RED);
+    jtaOutputConsole.setText("");
+    jtaOutputConsole.setText(errores.toString());
+
+    return; // 
+}
+
+jtaOutputConsole.setForeground(Color.BLACK);
+jtaOutputConsole.setText("Compilación exitosa. Sin errores léxicos.");
+llenarTablaTokens();
+
+    } catch (Exception ex) {
+        jtaOutputConsole.setForeground(Color.RED);
+        jtaOutputConsole.setText("Error: " + ex.getMessage());
+    }
+
+}
     
     private void llenarTablaTokens(){
         tokens.forEach(token -> {
