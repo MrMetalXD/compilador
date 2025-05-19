@@ -30,6 +30,7 @@ import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;
 import javax.swing.JScrollPane;
+import javax.swing.JTable;
 import javax.swing.JTextArea;
 
 /**
@@ -47,6 +48,7 @@ public class Ventana_Principal extends javax.swing.JFrame {
     private boolean codeHasBeenCompiled = false;
     private File archivoActual = null; // para saber si se abrió o guardó un archivo
     private boolean cambiosGuardados = false; // para saber si se necesita guardar antes de compilar
+    private ArrayList<Token> tablaDeSimbolos;
 
     public Ventana_Principal() {
         initComponents();
@@ -93,6 +95,7 @@ public class Ventana_Principal extends javax.swing.JFrame {
         tokens = new ArrayList<>();
         tokensError = new ArrayList<>();
         errores = new ArrayList<>();
+        tablaDeSimbolos = new ArrayList<>();
         jtpCode.getDocument().addDocumentListener(new DocumentListener() {
             public void insertUpdate(DocumentEvent e) {
                 cambiosGuardados = false;
@@ -164,35 +167,55 @@ public class Ventana_Principal extends javax.swing.JFrame {
 
         jPanel1.setBackground(new java.awt.Color(182, 239, 212));
 
+        btnNuevo.setBackground(new java.awt.Color(255, 255, 255));
+        btnNuevo.setIcon(new javax.swing.ImageIcon(getClass().getResource("/Imagenes/Icon/nuevoarchivo.png"))); // NOI18N
         btnNuevo.setText("Nuevo");
+        btnNuevo.setHorizontalTextPosition(javax.swing.SwingConstants.CENTER);
+        btnNuevo.setVerticalTextPosition(javax.swing.SwingConstants.BOTTOM);
         btnNuevo.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 btnNuevoActionPerformed(evt);
             }
         });
 
+        btnAbrir.setBackground(new java.awt.Color(255, 255, 255));
+        btnAbrir.setIcon(new javax.swing.ImageIcon(getClass().getResource("/Imagenes/Icon/abrirarchivo.png"))); // NOI18N
         btnAbrir.setText("Abrir");
+        btnAbrir.setHorizontalTextPosition(javax.swing.SwingConstants.CENTER);
+        btnAbrir.setVerticalTextPosition(javax.swing.SwingConstants.BOTTOM);
         btnAbrir.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 btnAbrirActionPerformed(evt);
             }
         });
 
+        btnGuardar.setBackground(new java.awt.Color(255, 255, 255));
+        btnGuardar.setIcon(new javax.swing.ImageIcon(getClass().getResource("/Imagenes/Icon/guardar.png"))); // NOI18N
         btnGuardar.setText("Guardar");
+        btnGuardar.setHorizontalTextPosition(javax.swing.SwingConstants.CENTER);
+        btnGuardar.setVerticalTextPosition(javax.swing.SwingConstants.BOTTOM);
         btnGuardar.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 btnGuardarActionPerformed(evt);
             }
         });
 
+        btnTablaSimbolos.setBackground(new java.awt.Color(255, 255, 255));
+        btnTablaSimbolos.setIcon(new javax.swing.ImageIcon(getClass().getResource("/Imagenes/Icon/tablasimbolos.png"))); // NOI18N
         btnTablaSimbolos.setText("Tabla de simbolos");
+        btnTablaSimbolos.setHorizontalTextPosition(javax.swing.SwingConstants.CENTER);
+        btnTablaSimbolos.setVerticalTextPosition(javax.swing.SwingConstants.BOTTOM);
         btnTablaSimbolos.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 btnTablaSimbolosActionPerformed(evt);
             }
         });
 
+        btCompilar.setBackground(new java.awt.Color(255, 255, 255));
+        btCompilar.setIcon(new javax.swing.ImageIcon(getClass().getResource("/Imagenes/Icon/compilar.png"))); // NOI18N
         btCompilar.setText("Compilar");
+        btCompilar.setHorizontalTextPosition(javax.swing.SwingConstants.CENTER);
+        btCompilar.setVerticalTextPosition(javax.swing.SwingConstants.BOTTOM);
         btCompilar.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 btCompilarActionPerformed(evt);
@@ -204,29 +227,29 @@ public class Ventana_Principal extends javax.swing.JFrame {
         jPanel1Layout.setHorizontalGroup(
             jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(jPanel1Layout.createSequentialGroup()
-                .addGap(28, 28, 28)
-                .addComponent(btnNuevo)
-                .addGap(18, 18, 18)
+                .addContainerGap()
+                .addComponent(btnNuevo, javax.swing.GroupLayout.PREFERRED_SIZE, 80, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(btnAbrir)
-                .addGap(27, 27, 27)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(btnGuardar)
-                .addGap(18, 18, 18)
-                .addComponent(btnTablaSimbolos)
-                .addGap(18, 18, 18)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                .addComponent(btnTablaSimbolos, javax.swing.GroupLayout.PREFERRED_SIZE, 128, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(btCompilar)
-                .addContainerGap(45, Short.MAX_VALUE))
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
         jPanel1Layout.setVerticalGroup(
             jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(jPanel1Layout.createSequentialGroup()
-                .addGap(17, 17, 17)
-                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(btnNuevo)
-                    .addComponent(btnAbrir)
-                    .addComponent(btnGuardar)
+                .addContainerGap()
+                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addComponent(btnTablaSimbolos)
-                    .addComponent(btCompilar))
-                .addContainerGap(14, Short.MAX_VALUE))
+                    .addComponent(btnGuardar)
+                    .addComponent(btnAbrir)
+                    .addComponent(btnNuevo, javax.swing.GroupLayout.PREFERRED_SIZE, 78, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(btCompilar, javax.swing.GroupLayout.PREFERRED_SIZE, 77, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addContainerGap(7, Short.MAX_VALUE))
         );
 
         tblTokens.setModel(new javax.swing.table.DefaultTableModel(
@@ -252,52 +275,53 @@ public class Ventana_Principal extends javax.swing.JFrame {
             jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(jPanel3Layout.createSequentialGroup()
                 .addGap(22, 22, 22)
-                .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(jPanel1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                    .addComponent(lblNombreArchivo)
                     .addGroup(jPanel3Layout.createSequentialGroup()
                         .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 695, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addComponent(Panel_Errores, javax.swing.GroupLayout.PREFERRED_SIZE, 692, javax.swing.GroupLayout.PREFERRED_SIZE))
-                        .addGap(50, 50, 50)
+                            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel3Layout.createSequentialGroup()
+                                .addComponent(Panel_Errores, javax.swing.GroupLayout.PREFERRED_SIZE, 692, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addGap(39, 39, 39))
+                            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel3Layout.createSequentialGroup()
+                                .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 695, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addGap(36, 36, 36))
+                            .addGroup(jPanel3Layout.createSequentialGroup()
+                                .addComponent(jPanel1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)))
                         .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                             .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, 373, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                                .addComponent(lblNombreArchivo)
-                                .addComponent(jLabel1, javax.swing.GroupLayout.PREFERRED_SIZE, 151, javax.swing.GroupLayout.PREFERRED_SIZE)))))
-                .addContainerGap(19, Short.MAX_VALUE))
+                            .addComponent(jLabel1, javax.swing.GroupLayout.PREFERRED_SIZE, 151, javax.swing.GroupLayout.PREFERRED_SIZE))))
+                .addContainerGap(32, Short.MAX_VALUE))
         );
         jPanel3Layout.setVerticalGroup(
             jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(jPanel3Layout.createSequentialGroup()
                 .addGap(18, 18, 18)
                 .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(jPanel1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(lblNombreArchivo))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(jLabel1)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
                     .addGroup(jPanel3Layout.createSequentialGroup()
+                        .addComponent(jPanel1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addGap(18, 18, 18)
                         .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 281, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                        .addGap(18, 18, 18)
                         .addComponent(Panel_Errores, javax.swing.GroupLayout.PREFERRED_SIZE, 111, javax.swing.GroupLayout.PREFERRED_SIZE))
-                    .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, 0, Short.MAX_VALUE))
-                .addContainerGap(29, Short.MAX_VALUE))
+                    .addGroup(jPanel3Layout.createSequentialGroup()
+                        .addComponent(lblNombreArchivo)
+                        .addGap(60, 60, 60)
+                        .addComponent(jLabel1)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                        .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, 322, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                .addContainerGap(21, Short.MAX_VALUE))
         );
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(layout.createSequentialGroup()
-                .addComponent(jPanel3, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                .addContainerGap())
+            .addComponent(jPanel3, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(layout.createSequentialGroup()
-                .addComponent(jPanel3, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+            .addComponent(jPanel3, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
         );
 
         pack();
@@ -330,101 +354,7 @@ public class Ventana_Principal extends javax.swing.JFrame {
     }//GEN-LAST:event_btnGuardarActionPerformed
 
     private void btnTablaSimbolosActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnTablaSimbolosActionPerformed
-
-        JFrame tokenViwer = new JFrame("Tabla de simbolos");
-        tokenViwer.setSize(600, 500); // Aumenté el tamaño para mejor visualización
-        tokenViwer.setLocationRelativeTo(null);
-        tokenViwer.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
-
-        JTextArea textArea = new JTextArea();
-        textArea.setEditable(false);
-        textArea.setFont(new Font("Monospaced", Font.PLAIN, 14));
-
-        StringBuilder tokens = new StringBuilder();
-        tokens.append("LISTA COMPLETA DE TOKENS\n");
-        tokens.append("========================\n\n");
-
-        tokens.append("1. IDENTIFICADORES Y LITERALES:\n");
-        tokens.append("   IDENTIFICADOR\n");
-        tokens.append("   NUMERO\n");
-        tokens.append("   CADENA\n\n");
-
-        tokens.append("2. COMANDOS DE ACCIÓN:\n");
-        tokens.append("   AVANZAR\n");
-        tokens.append("   GIRAR\n");
-        tokens.append("   DETENER\n");
-        tokens.append("   ESPERAR\n");
-        tokens.append("   MOSTRAR\n");
-        tokens.append("   LEER\n");
-        tokens.append("   RETROCEDER\n");
-        tokens.append("   ENCENDER\n");
-        tokens.append("   APAGAR\n");
-        tokens.append("   BOCINA\n\n");
-
-        tokens.append("3. ESTRUCTURA DE CONTROL:\n");
-        tokens.append("   REPETIR\n");
-        tokens.append("   MIENTRAS\n");
-        tokens.append("   SI\n");
-        tokens.append("   ENTONCES\n");
-        tokens.append("   SINO\n");
-        tokens.append("   FIN\n");
-        tokens.append("   ROMPER\n");
-        tokens.append("   CONTINUAR\n\n");
-
-        tokens.append("4. ESTRUCTURA DEL PROGRAMA:\n");
-        tokens.append("   INICIO\n");
-        tokens.append("   FUNCION\n");
-        tokens.append("   RETORNAR\n\n");
-
-        tokens.append("5. DECLARACIONES:\n");
-        tokens.append("   VARIABLE\n");
-        tokens.append("   CONSTANTE\n\n");
-
-        tokens.append("6. SENSORES Y CONDICIONES:\n");
-        tokens.append("   SENSOR_FRONTAL\n");
-        tokens.append("   SENSOR_IZQUIERDO\n");
-        tokens.append("   SENSOR_DERECHO\n");
-        tokens.append("   ACTIVADO\n");
-        tokens.append("   INACTIVO\n\n");
-
-        tokens.append("7. TIPOS DE DATOS:\n");
-        tokens.append("   ENTERO\n");
-        tokens.append("   DECIMAL\n");
-        tokens.append("   TEXTO\n\n");
-
-        tokens.append("8. OPERADORES:\n");
-        tokens.append("   IGUAL            ( = )\n");
-        tokens.append("   DIFERENTE        ( != )\n");
-        tokens.append("   MAYOR            ( > )\n");
-        tokens.append("   MENOR            ( < )\n");
-        tokens.append("   MAYOR_IGUAL      ( >= )\n");
-        tokens.append("   MENOR_IGUAL      ( <= )\n");
-        tokens.append("   AND              ( y )\n");
-        tokens.append("   OR               ( o )\n");
-        tokens.append("   NO               ( negación )\n\n");
-
-        tokens.append("9. SÍMBOLOS:\n");
-        tokens.append("   LLAVE_ABRE       ( { )\n");
-        tokens.append("   LLAVE_CIERRA     ( } )\n");
-        tokens.append("   CORCHETE_ABRE    ( [ )\n");
-        tokens.append("   CORCHETE_CIERRA  ( ] )\n");
-        tokens.append("   PAR_ABRE         ( ( )\n");
-        tokens.append("   PAR_CIERRA       ( ) )\n");
-        tokens.append("   COMA            ( , )\n");
-        tokens.append("   PUNTOCOMA       ( ; )\n");
-        tokens.append("   COMILLA_DOBLE   ( \" )\n");
-        tokens.append("   COMENTARIO      ( // )\n\n");
-
-        tokens.append("10. OTROS:\n");
-        tokens.append("    ERROR\n");
-
-        textArea.setText(tokens.toString());
-        add(new JScrollPane(textArea), BorderLayout.CENTER);
-        textArea.setText(tokens.toString());
-        JScrollPane scrollPane = new JScrollPane(textArea);
-        tokenViwer.getContentPane().add(scrollPane, BorderLayout.CENTER);
-
-        tokenViwer.setVisible(true);
+        mostrarTablaDeSimbolos();
     }//GEN-LAST:event_btnTablaSimbolosActionPerformed
 
     private void btCompilarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btCompilarActionPerformed
@@ -491,6 +421,7 @@ public class Ventana_Principal extends javax.swing.JFrame {
      */
     private boolean compilar() {
         limpiarCampos();
+        tablaDeSimbolos.clear();
 
         boolean exito = analisisLexico();
 
@@ -540,17 +471,38 @@ public class Ventana_Principal extends javax.swing.JFrame {
             compilerTools.Token token;
             while ((token = lexer.yylex()) != null) {
                 tokens.add(token);
-                if ("ERROR".equals(token.getLexicalComp())) {
+                if (token.getLexicalComp().startsWith("ERROR")) {
                     tokensError.add(token);
                 }
             }
+            
+            tablaDeSimbolos.addAll(tokens);
 
             if (!tokensError.isEmpty()) {
                 StringBuilder errores = new StringBuilder("Errores léxicos encontrados:\n\n");
                 for (compilerTools.Token t : tokensError) {
                     errores.append("Línea ").append(t.getLine())
-                            .append(" Columna ").append(t.getColumn())
                             .append(" → ").append(t.getLexeme()).append("\n");
+                    
+                    String tipo = t.getLexicalComp();
+                    switch (tipo) {
+                        case "ERROR_IDENTIFICADOR_INVALIDO":
+                        errores.append("Sugerencia: Un identificador no puede comenzar con un número. Usa algo como 'velocidad9'\n\n");
+                        break;
+                        case "ERROR_CADENA_NO_CERRADA":
+                            errores.append("Sugerencia: Falta la comilla final (\"). Asegúrate de cerrar la cadena.\n\n");
+                            break;
+                        case "ERROR_NUMERO_MAL_FORMADO":
+                            errores.append("Sugerencia: El número contiene múltiples puntos decimales. Usa solo uno (ej. 5.4).\n\n");
+                            break;
+                        case "ERROR_CARACTER_INVALIDO":
+                            errores.append("Sugerencia: Usa solo caracteres permitidos en el lenguaje (letras, números, símbolos válidos).\n\n");
+                            break;
+                        case "ERROR":
+                        default:
+                            errores.append("Sugerencia: Revisa la sintaxis del token ingresado.\n\n");
+                        break;
+                    }
                 }
 
                 jtaOutputConsole.setForeground(Color.RED);
@@ -576,6 +528,33 @@ public class Ventana_Principal extends javax.swing.JFrame {
             Functions.addRowDataInTable(tblTokens, data);
         });
 
+    }
+    
+    private void mostrarTablaDeSimbolos(){
+        if(tablaDeSimbolos.isEmpty()){
+            JOptionPane.showMessageDialog(this, "No hay simbolos cargados.", "Advertencia", JOptionPane.WARNING_MESSAGE);
+            return;
+        }
+        
+        String[] columnas = {"Componente Léxico"," Lexema","Linea"};
+        String [][] datos = new String[tablaDeSimbolos.size()][3];
+        
+        for (int i= 0; i< tablaDeSimbolos.size(); i++){
+            Token t = tablaDeSimbolos.get(i);
+            datos[i][0] = t.getLexicalComp();
+            datos[i][1] = t.getLexeme();
+            datos[i][2] = String.valueOf(t.getLine());
+        }
+        
+        JTable tabla = new JTable(datos, columnas);
+        JScrollPane scroll = new JScrollPane(tabla);
+    
+        JFrame frame = new JFrame("Tabla de Símbolos");
+        frame.setSize(400, 300);
+        frame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+        frame.add(scroll);
+        frame.setLocationRelativeTo(this);
+        frame.setVisible(true);
     }
 
     private void limpiarCampos() {

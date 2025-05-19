@@ -1,5 +1,6 @@
 package codigo;
 import compilerTools.Token;
+import codigo.TablaSimbolos;
 
 %%
 %public
@@ -10,6 +11,8 @@ import compilerTools.Token;
 %column
 
 %{
+    private final TablaSimbolos tablaSimbolos = new TablaSimbolos();
+
     private Token token(String lexeme, String lexicalComp, int line, int column){
         return new Token(lexeme, lexicalComp, line+1, column+1);
     }
@@ -89,8 +92,26 @@ import compilerTools.Token;
 [0-9]+(\\.[0-9]+)?     { return token(yytext(), "NUMERO", yyline, yycolumn); }
 \"[^\"\n]*\"           { return token(yytext(), "CADENA", yyline, yycolumn); }
 "//".*                 { return token(yytext(), "COMENTARIO", yyline, yycolumn); }
-[a-zA-Z_][a-zA-Z_0-9]* { return token(yytext(), "IDENTIFICADOR", yyline, yycolumn); }
+[a-zA-Z_][a-zA-Z_0-9]* {
+    if (tablaSimbolos.esReservada(yytext())) {
+        return token(yytext(), "PALABRA_RESERVADA", yyline, yycolumn);
+    } else {
+        return token(yytext(), "IDENTIFICADOR", yyline, yycolumn);
+    }
+}
+
 [ \t\r\n]+             { /* ignorar espacios */ }
 
-/* ---------------------- ERROR ---------------------- */
-[^]  { return token(yytext(), "ERROR", yyline, yycolumn); }
+/* ---------------------- ERRORES ---------------------- */
+\"[^\"\n]*    { return token(yytext(), "ERROR_CADENA_NO_CERRADA", yyline, yycolumn); }
+
+[0-9]+\.[0-9]+\.[0-9]+   { return token(yytext(), "ERROR_NUMERO_MAL_FORMADO", yyline, yycolumn); }
+
+[^\s\w\[\]{}();=<>+\-*/\"0-9a-zA-Z_.,] {
+    return token(yytext(), "ERROR_CARACTER_INVALIDO", yyline, yycolumn);
+}
+
+[0-9]+[a-zA-Z_]+[a-zA-Z_0-9]*   { return token(yytext(), "ERROR_IDENTIFICADOR_INVALIDO", yyline, yycolumn); }
+
+.  { return token(yytext(), "ERROR", yyline, yycolumn); }
+
