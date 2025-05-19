@@ -27,12 +27,14 @@ import codigo.TablaSimbolos;
 "girar"       { return token(yytext(), "COMANDO_ACCION", yyline, yycolumn); }
 "detener"     { return token(yytext(), "COMANDO_ACCION", yyline, yycolumn); }
 "esperar"     { return token(yytext(), "COMANDO_ACCION", yyline, yycolumn); }
-"mostrar"     { return token(yytext(), "COMANDO_ACCION", yyline, yycolumn); }
-"leer"        { return token(yytext(), "COMANDO_ACCION", yyline, yycolumn); }
 "retroceder"  { return token(yytext(), "COMANDO_ACCION", yyline, yycolumn); }
 "encender"    { return token(yytext(), "COMANDO_ACCION", yyline, yycolumn); }
 "apagar"      { return token(yytext(), "COMANDO_ACCION", yyline, yycolumn); }
 "bocina"      { return token(yytext(), "COMANDO_ACCION", yyline, yycolumn); }
+
+// Entrada/Salida
+"mostrar"     { return token(yytext(), "ENTRADA_SALIDA", yyline, yycolumn); }
+"leer"        { return token(yytext(), "ENTRADA_SALIDA", yyline, yycolumn); }
 
 // Control de flujo
 "repetir"     { return token(yytext(), "CICLO", yyline, yycolumn); }
