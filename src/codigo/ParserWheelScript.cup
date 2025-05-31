@@ -1,0 +1,82 @@
+//-----------------------------
+// Paquete
+//-----------------------------
+package codigo;
+
+import java_cup.runtime.*;
+import java.util.ArrayList;
+
+//-----------------------------
+// Terminales sin tipos
+//-----------------------------
+terminal mostrar, variable, si, entonces, sino, inicio, fin;
+terminal avanzar, detener, girar, retroceder;
+terminal igual, llave_izq, llave_der;
+terminal CADENA, IDENTIFICADOR, ESTADO, NUMERO;
+
+//-----------------------------
+// No terminales
+//-----------------------------
+non terminal programa, instrucciones, instruccion, declaracion_variable,
+              asignacion, mostrar_instr, accion, condicional, sino_opcional,
+              condicion, expresion;
+
+//-----------------------------
+// Código de soporte
+//-----------------------------
+parser code {:
+    public ArrayList<String> errores = new ArrayList<>();
+
+    public void report_error(String message, Object info) {
+        errores.add("Error sintáctico: " + message);
+    }
+:};
+
+//-----------------------------
+// Reglas de Producción
+//-----------------------------
+programa ::= inicio llave_izq instrucciones llave_der fin
+           {: System.out.println("✔ Análisis sintáctico exitoso"); :}
+           ;
+
+instrucciones ::= instruccion instrucciones
+                | /* vacío */
+                ;
+
+instruccion ::= declaracion_variable
+              | asignacion
+              | mostrar_instr
+              | accion
+              | condicional
+              ;
+
+declaracion_variable ::= variable IDENTIFICADOR igual expresion
+                       ;
+
+asignacion ::= IDENTIFICADOR igual expresion
+             ;
+
+mostrar_instr ::= mostrar CADENA
+                | mostrar IDENTIFICADOR
+                ;
+
+accion ::= avanzar
+         | detener
+         | girar
+         | retroceder
+         ;
+
+condicional ::= si condicion entonces llave_izq instrucciones llave_der sino_opcional
+              ;
+
+sino_opcional ::= sino llave_izq instrucciones llave_der
+                | /* vacío */
+                ;
+
+condicion ::= IDENTIFICADOR igual ESTADO
+            ;
+
+expresion ::= NUMERO
+            | IDENTIFICADOR
+            | CADENA
+            ;
