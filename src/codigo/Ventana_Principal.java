@@ -32,6 +32,7 @@ import javax.swing.JOptionPane;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
 import javax.swing.JTextArea;
+import javax.swing.table.DefaultTableModel;
 
 /**
  *
@@ -49,6 +50,8 @@ public class Ventana_Principal extends javax.swing.JFrame {
     private File archivoActual = null; // para saber si se abrió o guardó un archivo
     private boolean cambiosGuardados = false; // para saber si se necesita guardar antes de compilar
     private ArrayList<Token> tablaDeSimbolos;
+    private TablaSimbolos tablaSimbolos = new TablaSimbolos();
+    private int direccionActual = 0;
 
     public Ventana_Principal() {
         initComponents();
@@ -60,7 +63,6 @@ public class Ventana_Principal extends javax.swing.JFrame {
         setTitle("#WheelScript");
         setLocationRelativeTo(null);
         btCompilar.setEnabled(false);
-
         directorio = new Directory(this, jtpCode, title, ".wscript");
 
         addWindowListener(new WindowAdapter() {
@@ -92,10 +94,7 @@ public class Ventana_Principal extends javax.swing.JFrame {
                 numerolinea.repaint();
             }
         });
-        tokens = new ArrayList<>();
-        tokensError = new ArrayList<>();
-        errores = new ArrayList<>();
-        tablaDeSimbolos = new ArrayList<>();
+                
         jtpCode.getDocument().addDocumentListener(new DocumentListener() {
             public void insertUpdate(DocumentEvent e) {
                 cambiosGuardados = false;
@@ -109,6 +108,10 @@ public class Ventana_Principal extends javax.swing.JFrame {
                 cambiosGuardados = false;
             }
         });
+        tokens = new ArrayList<>();
+        tokensError = new ArrayList<>();
+        errores = new ArrayList<>();
+        tablaDeSimbolos = new ArrayList<>();
 
     }
 
@@ -133,9 +136,6 @@ public class Ventana_Principal extends javax.swing.JFrame {
         btnGuardar = new javax.swing.JButton();
         btnTablaSimbolos = new javax.swing.JButton();
         btCompilar = new javax.swing.JButton();
-        jScrollPane2 = new javax.swing.JScrollPane();
-        tblTokens = new javax.swing.JTable();
-        jLabel1 = new javax.swing.JLabel();
         lblNombreArchivo = new javax.swing.JLabel();
 
         Barra_Nav.setText("jMenuItem6");
@@ -165,7 +165,7 @@ public class Ventana_Principal extends javax.swing.JFrame {
         jtaOutputConsole.setDisabledTextColor(java.awt.Color.white);
         Panel_Errores.setViewportView(jtaOutputConsole);
 
-        jPanel1.setBackground(new java.awt.Color(182, 239, 212));
+        jPanel1.setBackground(new java.awt.Color(255, 248, 231));
 
         btnNuevo.setBackground(new java.awt.Color(255, 255, 255));
         btnNuevo.setIcon(new javax.swing.ImageIcon(getClass().getResource("/Imagenes/Icon/nuevoarchivo.png"))); // NOI18N
@@ -233,7 +233,7 @@ public class Ventana_Principal extends javax.swing.JFrame {
                 .addComponent(btnAbrir)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(btnGuardar)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(btnTablaSimbolos, javax.swing.GroupLayout.PREFERRED_SIZE, 128, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(btCompilar)
@@ -243,27 +243,14 @@ public class Ventana_Principal extends javax.swing.JFrame {
             jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(jPanel1Layout.createSequentialGroup()
                 .addContainerGap()
-                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(btnTablaSimbolos)
-                    .addComponent(btnGuardar)
-                    .addComponent(btnAbrir)
-                    .addComponent(btnNuevo, javax.swing.GroupLayout.PREFERRED_SIZE, 78, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(btCompilar, javax.swing.GroupLayout.PREFERRED_SIZE, 77, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                    .addComponent(btnGuardar, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addComponent(btnNuevo, javax.swing.GroupLayout.DEFAULT_SIZE, 78, Short.MAX_VALUE)
+                    .addComponent(btCompilar)
+                    .addComponent(btnAbrir, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addComponent(btnTablaSimbolos, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
                 .addContainerGap(7, Short.MAX_VALUE))
         );
-
-        tblTokens.setModel(new javax.swing.table.DefaultTableModel(
-            new Object [][] {
-
-            },
-            new String [] {
-                "Componente Léxico", "Lexema", "[Línea, Columa]"
-            }
-        ));
-        jScrollPane2.setViewportView(tblTokens);
-
-        jLabel1.setFont(new java.awt.Font("Segoe UI", 1, 14)); // NOI18N
-        jLabel1.setText("Tabla de Tokens");
 
         lblNombreArchivo.setText("Archivo Nuevo");
         lblNombreArchivo.setBorder(javax.swing.BorderFactory.createBevelBorder(javax.swing.border.BevelBorder.RAISED));
@@ -275,53 +262,41 @@ public class Ventana_Principal extends javax.swing.JFrame {
             jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(jPanel3Layout.createSequentialGroup()
                 .addGap(22, 22, 22)
-                .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                    .addComponent(lblNombreArchivo)
+                .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel3Layout.createSequentialGroup()
+                        .addComponent(Panel_Errores)
+                        .addGap(444, 444, 444))
+                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel3Layout.createSequentialGroup()
+                        .addComponent(jScrollPane1)
+                        .addGap(441, 441, 441))
                     .addGroup(jPanel3Layout.createSequentialGroup()
-                        .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel3Layout.createSequentialGroup()
-                                .addComponent(Panel_Errores, javax.swing.GroupLayout.PREFERRED_SIZE, 692, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                .addGap(39, 39, 39))
-                            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel3Layout.createSequentialGroup()
-                                .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 695, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                .addGap(36, 36, 36))
-                            .addGroup(jPanel3Layout.createSequentialGroup()
-                                .addComponent(jPanel1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)))
-                        .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, 373, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addComponent(jLabel1, javax.swing.GroupLayout.PREFERRED_SIZE, 151, javax.swing.GroupLayout.PREFERRED_SIZE))))
-                .addContainerGap(32, Short.MAX_VALUE))
+                        .addComponent(jPanel1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                        .addGap(355, 355, 355)
+                        .addComponent(lblNombreArchivo)
+                        .addGap(209, 209, 209))))
         );
         jPanel3Layout.setVerticalGroup(
             jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(jPanel3Layout.createSequentialGroup()
                 .addGap(18, 18, 18)
                 .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addGroup(jPanel3Layout.createSequentialGroup()
-                        .addComponent(jPanel1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addGap(18, 18, 18)
-                        .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 281, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addGap(18, 18, 18)
-                        .addComponent(Panel_Errores, javax.swing.GroupLayout.PREFERRED_SIZE, 111, javax.swing.GroupLayout.PREFERRED_SIZE))
-                    .addGroup(jPanel3Layout.createSequentialGroup()
-                        .addComponent(lblNombreArchivo)
-                        .addGap(60, 60, 60)
-                        .addComponent(jLabel1)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                        .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, 322, javax.swing.GroupLayout.PREFERRED_SIZE)))
-                .addContainerGap(21, Short.MAX_VALUE))
+                    .addComponent(jPanel1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(lblNombreArchivo, javax.swing.GroupLayout.PREFERRED_SIZE, 26, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 290, Short.MAX_VALUE)
+                .addGap(18, 18, 18)
+                .addComponent(Panel_Errores, javax.swing.GroupLayout.DEFAULT_SIZE, 120, Short.MAX_VALUE)
+                .addGap(21, 21, 21))
         );
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(jPanel3, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+            .addComponent(jPanel3, javax.swing.GroupLayout.PREFERRED_SIZE, 959, Short.MAX_VALUE)
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(jPanel3, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+            .addComponent(jPanel3, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
         );
 
         pack();
@@ -358,20 +333,34 @@ public class Ventana_Principal extends javax.swing.JFrame {
     }//GEN-LAST:event_btnTablaSimbolosActionPerformed
 
     private void btCompilarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btCompilarActionPerformed
-        boolean exito = analisisLexico(); // O simplemente: boolean exito = compilar();
+        try {
+            boolean exito = analisisLexico(); // O simplemente: boolean exito = compilar();
 
-        if (exito) {
-            JFrame frame = new JFrame("Tabla de tokens");
-            frame.setSize(300, 500);
-            frame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
-            frame.add(jScrollPane2);
-            frame.setVisible(true);
-            frame.setLocationRelativeTo(null);
-            frame.setResizable(true);
-            
+            if (exito) {
+                JFrame frame = new JFrame("Tabla de tokens");
+                frame.setSize(500, 400);
+                frame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+                frame.setLocationRelativeTo(this);
+                frame.setResizable(true);
+                
+                String[] columnas = {"Componente Léxico", "Lexema", "[Linea, Columna]"};
+                DefaultTableModel model = new DefaultTableModel(columnas, 0);
+                
+                for(Token token: tokens){
+                    String compLex = token.getLexicalComp();
+                    String lexema = token.getLexeme();
+                    String ubicacion = "[" + token.getLine() + "," + token.getColumn() + "]";
+                    model.addRow(new Object[]{compLex, lexema, ubicacion});
+                }
+                JTable tabla = new JTable(model);
+                JScrollPane scroll =  new JScrollPane(tabla);
+                frame.add(scroll);
+                frame.setVisible(true);
+                
+            }
+        } catch (Exception e) {
+            JOptionPane.showMessageDialog(this, "Error durante la compilación: " + e.getMessage());
         }
-
-
     }//GEN-LAST:event_btCompilarActionPerformed
 
     private void jtpCodeKeyReleased(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_jtpCodeKeyReleased
@@ -419,20 +408,6 @@ public class Ventana_Principal extends javax.swing.JFrame {
     /**
      * @param args the command line arguments
      */
-    private boolean compilar() {
-        limpiarCampos();
-        tablaDeSimbolos.clear();
-
-        boolean exito = analisisLexico();
-
-        if (exito) {
-            llenarTablaTokens();
-        }
-
-        return exito;
-
-        //imprimirConsola();
-    }
 
     private void guardarArchivo() {
         try (BufferedWriter writer = new BufferedWriter(new FileWriter(archivoActual))) {
@@ -443,38 +418,52 @@ public class Ventana_Principal extends javax.swing.JFrame {
         }
     }
 
-    private boolean analisisLexico() {
+    private boolean analisisLexico() throws IOException {
         limpiarCampos();
+        direccionActual = 0;
         try {
             String codigoFuente = jtpCode.getText().trim();
-
             if (codigoFuente.isEmpty()) {
-                jtaOutputConsole.setForeground(Color.RED);
-                jtaOutputConsole.setText("NO HAY CODIGO QUE COMPILAR.");
-                return false;
+                JOptionPane.showMessageDialog(this, "No hay codigo existente");
             }
-
             File codigo = new File("codigo.wscript");
             FileOutputStream salida = new FileOutputStream(codigo);
             byte[] contenido = jtpCode.getText().getBytes();
             salida.write(contenido);
             salida.close();
-
-            BufferedReader entrada = new BufferedReader(
-                    new InputStreamReader(new FileInputStream(codigo), "UTF8")
-            );
-
+            BufferedReader entrada = new BufferedReader(new InputStreamReader(new FileInputStream(codigo), "UTF8"));
             WheelScriptLexer lexer = new WheelScriptLexer(entrada);
             tokens.clear();
             tokensError.clear();
+            
+            boolean declarandoVariable = false;
+            String tipoDatoActual = null;
+            
 
             compilerTools.Token token;
             while ((token = lexer.yylex()) != null) {
-                tokens.add(token);
-                if (token.getLexicalComp().startsWith("ERROR")) {
-                    tokensError.add(token);
-                }
+            tokens.add(token);
+            if (token.getLexicalComp().startsWith("ERROR")) {
+                tokensError.add(token);
             }
+
+            if (token.getLexicalComp().equals("DECLARACION_VAR")) {
+                declarandoVariable = true;
+                tipoDatoActual = null;
+            } else if (declarandoVariable && token.getLexicalComp().equals("TIPO_DATO")) {
+                tipoDatoActual = token.getLexeme();
+            } else if (declarandoVariable && token.getLexicalComp().equals("IDENTIFICADOR")) {
+                if (!tablaSimbolos.contieneSimbolo(token.getLexeme())) {
+                    int tamano = calcularTamanoTipo(tipoDatoActual);
+                    tablaSimbolos.agregarSimbolos(token.getLexeme(), "Identificador",
+                            tipoDatoActual != null ? tipoDatoActual : "Desconocido", "Global", direccionActual);
+                    direccionActual += tamano;
+                }
+                declarandoVariable = false; // Finalizamos declaración
+                tipoDatoActual = null;
+            }
+                
+        }
             
             tablaDeSimbolos.addAll(tokens);
 
@@ -504,6 +493,7 @@ public class Ventana_Principal extends javax.swing.JFrame {
                         break;
                     }
                 }
+                
 
                 jtaOutputConsole.setForeground(Color.RED);
                 jtaOutputConsole.setText("");
@@ -513,7 +503,7 @@ public class Ventana_Principal extends javax.swing.JFrame {
 
             jtaOutputConsole.setForeground(Color.BLUE);
             jtaOutputConsole.setText("COMPILACION EXITOSA. SIN ERRORES LÉXICOS.");
-            llenarTablaTokens();
+            return true;
 
         } catch (Exception ex) {
             jtaOutputConsole.setForeground(Color.RED);
@@ -521,44 +511,44 @@ public class Ventana_Principal extends javax.swing.JFrame {
         }
         return false;
     }
-
-    private void llenarTablaTokens() {
-        tokens.forEach(token -> {
-            Object[] data = new Object[]{token.getLexicalComp(), token.getLexeme(), "[" + token.getLine() + ", " + token.getColumn() + "]"};
-            Functions.addRowDataInTable(tblTokens, data);
-        });
-
+    
+    // Método para calcular el tamaño de cada tipo de dato
+    private int calcularTamanoTipo(String tipo) {
+        if (tipo == null) return 4;
+        switch (tipo.toLowerCase()) {
+            case "entero":
+                return 4;
+            case "decimal":
+                return 8;
+            case "texto":
+                return 16;
+            default:
+                return 4;
+        }
     }
+
     
     private void mostrarTablaDeSimbolos(){
-        if(tablaDeSimbolos.isEmpty()){
-            JOptionPane.showMessageDialog(this, "No hay simbolos cargados.", "Advertencia", JOptionPane.WARNING_MESSAGE);
+        if (tablaSimbolos.getSimbolos().isEmpty()) {
+            JOptionPane.showMessageDialog(this, "No hay símbolos cargados.");
             return;
         }
-        
-        String[] columnas = {"Componente Léxico"," Lexema","Linea"};
-        String [][] datos = new String[tablaDeSimbolos.size()][3];
-        
-        for (int i= 0; i< tablaDeSimbolos.size(); i++){
-            Token t = tablaDeSimbolos.get(i);
-            datos[i][0] = t.getLexicalComp();
-            datos[i][1] = t.getLexeme();
-            datos[i][2] = String.valueOf(t.getLine());
+        String[] columnas = {"Nombre", "Tipo", "TipoDato", "Ámbito", "Dirección"};
+        String [][] datos = new String[tablaSimbolos.getSimbolos().size()][5];
+        int i = 0;
+        for (TablaSimbolos.Simbolo s: tablaSimbolos.getSimbolos().values()) {
+            datos[i++] = s.toArray();
         }
-        
-        JTable tabla = new JTable(datos, columnas);
+        JTable tabla = new JTable(new DefaultTableModel(datos, columnas));
         JScrollPane scroll = new JScrollPane(tabla);
-    
         JFrame frame = new JFrame("Tabla de Símbolos");
-        frame.setSize(400, 300);
-        frame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+        frame.setSize(500, 300);
         frame.add(scroll);
         frame.setLocationRelativeTo(this);
         frame.setVisible(true);
     }
 
     private void limpiarCampos() {
-        Functions.clearDataInTable(tblTokens);
         jtaOutputConsole.setText("");
         tokens.clear();
     }
@@ -612,14 +602,11 @@ public class Ventana_Principal extends javax.swing.JFrame {
     private javax.swing.JButton btnGuardar;
     private javax.swing.JButton btnNuevo;
     private javax.swing.JButton btnTablaSimbolos;
-    private javax.swing.JLabel jLabel1;
     private javax.swing.JPanel jPanel1;
     private javax.swing.JPanel jPanel3;
     private javax.swing.JScrollPane jScrollPane1;
-    private javax.swing.JScrollPane jScrollPane2;
     private javax.swing.JTextArea jtaOutputConsole;
     private javax.swing.JTextArea jtpCode;
     private javax.swing.JLabel lblNombreArchivo;
-    private javax.swing.JTable tblTokens;
     // End of variables declaration//GEN-END:variables
 }
