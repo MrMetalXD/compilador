@@ -39,44 +39,24 @@ programa ::= inicio llave_izq instrucciones llave_der fin
            {: System.out.println("✔ Análisis sintáctico exitoso"); :}
            ;
 
-instrucciones ::= instruccion instrucciones
-                | /* vacío */
-                ;
+instrucciones ::= instruccion instrucciones | /* vacío */;
 
-instruccion ::= declaracion_variable
-              | asignacion
-              | mostrar_instr
-              | accion
-              | condicional
-              ;
+instruccion ::= declaracion_variable | asignacion | mostrar_instr | accion | condicional;
 
-declaracion_variable ::= variable IDENTIFICADOR igual expresion
-                       ;
+declaracion_variable ::= variable IDENTIFICADOR igual expresion;
 
-asignacion ::= IDENTIFICADOR igual expresion
-             ;
+asignacion ::= IDENTIFICADOR igual expresion;
 
-mostrar_instr ::= mostrar CADENA
-                | mostrar IDENTIFICADOR
-                ;
+mostrar_instr ::= mostrar mostrar_op;
 
-accion ::= avanzar
-         | detener
-         | girar
-         | retroceder
-         ;
+mostrar_op ::= CADENA | IDENTIFICADOR;
 
-condicional ::= si condicion entonces llave_izq instrucciones llave_der sino_opcional
-              ;
+accion ::= avanzar | detener | girar | retroceder;
 
-sino_opcional ::= sino llave_izq instrucciones llave_der
-                | /* vacío */
-                ;
+condicional ::= si condicion entonces llave_izq instrucciones llave_der sino_opcional;
 
-condicion ::= IDENTIFICADOR igual ESTADO
-            ;
+sino_opcional ::= sino llave_izq instrucciones llave_der | /* vacío */;
 
-expresion ::= NUMERO
-            | IDENTIFICADOR
-            | CADENA
-            ;
+condicion ::= IDENTIFICADOR igual ESTADO;
+
+expresion ::= NUMERO | IDENTIFICADOR | CADENA;
