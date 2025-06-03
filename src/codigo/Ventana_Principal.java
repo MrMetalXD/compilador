@@ -22,10 +22,14 @@ import compilerTools.ErrorLSSL;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Font;
+import java.util.List;
 import java.awt.event.WindowAdapter;
 import java.io.BufferedWriter;
 import java.io.FileWriter;
 import java.nio.file.Files;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Stack;
 import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;
@@ -149,6 +153,7 @@ public class Ventana_Principal extends javax.swing.JFrame {
         jScrollPane1.setBorder(javax.swing.BorderFactory.createEtchedBorder());
 
         jtpCode.setColumns(20);
+        jtpCode.setFont(new java.awt.Font("Segoe UI", 0, 14)); // NOI18N
         jtpCode.setRows(5);
         jtpCode.addKeyListener(new java.awt.event.KeyAdapter() {
             public void keyReleased(java.awt.event.KeyEvent evt) {
@@ -161,6 +166,7 @@ public class Ventana_Principal extends javax.swing.JFrame {
         Panel_Errores.setBorder(new javax.swing.border.SoftBevelBorder(javax.swing.border.BevelBorder.RAISED));
 
         jtaOutputConsole.setColumns(20);
+        jtaOutputConsole.setFont(new java.awt.Font("Segoe UI", 0, 14)); // NOI18N
         jtaOutputConsole.setRows(5);
         jtaOutputConsole.setDisabledTextColor(java.awt.Color.white);
         Panel_Errores.setViewportView(jtaOutputConsole);
@@ -334,7 +340,7 @@ public class Ventana_Principal extends javax.swing.JFrame {
 
     private void btCompilarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btCompilarActionPerformed
         try {
-            boolean exito = analisisLexico(); // O simplemente: boolean exito = compilar();
+            boolean exito = analisisLexico(); 
 
             if (exito) {
                 JFrame frame = new JFrame("Tabla de tokens");
@@ -356,6 +362,14 @@ public class Ventana_Principal extends javax.swing.JFrame {
                 JScrollPane scroll =  new JScrollPane(tabla);
                 frame.add(scroll);
                 frame.setVisible(true);
+                
+                // Analisis sintactico
+                boolean exitoSintactico = analisisSintactico();
+                if(exitoSintactico){
+                    jtaOutputConsole.append("\n Compilacion exitosa. \n");
+                } else {
+                    jtaOutputConsole.append("\n se encontraron errores sintacticos. \n");
+                }
                 
             }
         } catch (Exception e) {
@@ -447,10 +461,11 @@ public class Ventana_Principal extends javax.swing.JFrame {
                 tokensError.add(token);
             }
 
-            if (token.getLexicalComp().equals("DECLARACION_VAR")) {
+            if (token.getLexicalComp().equals("PALABRA_RESERVADA") && token.getLexeme().equals("variable")) {
                 declarandoVariable = true;
-                tipoDatoActual = null;
-            } else if (declarandoVariable && token.getLexicalComp().equals("TIPO_DATO")) {
+            }   
+            else if (declarandoVariable && token.getLexicalComp().equals("PALABRA_RESERVADA") && 
+            (token.getLexeme().equals("entero") || token.getLexeme().equals("decimal") || token.getLexeme().equals("texto"))) {
                 tipoDatoActual = token.getLexeme();
             } else if (declarandoVariable && token.getLexicalComp().equals("IDENTIFICADOR")) {
                 if (!tablaSimbolos.contieneSimbolo(token.getLexeme())) {
@@ -468,33 +483,37 @@ public class Ventana_Principal extends javax.swing.JFrame {
             tablaDeSimbolos.addAll(tokens);
 
             if (!tokensError.isEmpty()) {
-                StringBuilder errores = new StringBuilder("Errores léxicos encontrados:\n\n");
+                StringBuilder errores = new StringBuilder();
                 for (compilerTools.Token t : tokensError) {
-                    errores.append("Línea ").append(t.getLine())
-                            .append(" → ").append(t.getLexeme()).append("\n");
-                    
                     String tipo = t.getLexicalComp();
+                    errores.append("Error léxico en la linea ").append(t.getLine()).append(", ");
                     switch (tipo) {
+                        case "ERROR_IDENTIFICADOR_ES_PALABRA_RESERVADA":
+                            errores.append("Un identificador no puede ser una palabra reservada. Usa un nombre válido y distinto\n");
+                            break;
+                        case "ERROR_COMENTARIO":
+                            errores.append("Comentario mal escrito (Usa // para los comentarios)\n");
+                            break;
                         case "ERROR_IDENTIFICADOR_INVALIDO":
-                        errores.append("Sugerencia: Un identificador no puede comenzar con un número. Usa algo como 'velocidad9'\n\n");
+                        errores.append("Un identificador no puede comenzar con un número. Usa algo como 'velocidad9'\n\n");
                         break;
                         case "ERROR_CADENA_NO_CERRADA":
-                            errores.append("Sugerencia: Falta la comilla final (\"). Asegúrate de cerrar la cadena.\n\n");
+                            errores.append("Falta la comilla final (\"). Asegúrate de cerrar la cadena.\n\n");
                             break;
                         case "ERROR_NUMERO_MAL_FORMADO":
-                            errores.append("Sugerencia: El número contiene múltiples puntos decimales. Usa solo uno (ej. 5.4).\n\n");
+                            errores.append("El número contiene múltiples puntos decimales. Usa solo uno (ejemplo: 5.4).\n\n");
                             break;
                         case "ERROR_CARACTER_INVALIDO":
-                            errores.append("Sugerencia: Usa solo caracteres permitidos en el lenguaje (letras, números, símbolos válidos).\n\n");
+                            errores.append("Usa solo caracteres permitidos en el lenguaje (letras, números, símbolos válidos).\n\n");
                             break;
                         case "ERROR":
                         default:
-                            errores.append("Sugerencia: Revisa la sintaxis del token ingresado.\n\n");
+                            errores.append("Revisa la cadena.\n\n");
                         break;
                     }
                 }
                 
-
+                   // 
                 jtaOutputConsole.setForeground(Color.RED);
                 jtaOutputConsole.setText("");
                 jtaOutputConsole.setText(errores.toString());
@@ -512,6 +531,128 @@ public class Ventana_Principal extends javax.swing.JFrame {
         return false;
     }
     
+    private boolean analisisSintactico() {
+        jtaOutputConsole.setForeground(Color.BLUE);
+        jtaOutputConsole.setText("Iniciando análisis sintáctico LL(1)...\n");
+
+        Map<String, Map<String, String[]>> tablaLL1 = new HashMap<>();
+
+        // Gramática completa adaptada a tu lexer y gramática
+        addEntry(tablaLL1, "programa", "INICIO_PROGRAMA", new String[]{"INICIO_PROGRAMA", "LLAVE_ABRE", "instrucciones", "LLAVE_CIERRA", "FIN_BLOQUE"});
+
+        addEntry(tablaLL1, "instrucciones", "DECLARACION_VAR", new String[]{"instruccion", "instrucciones"});
+        addEntry(tablaLL1, "instrucciones", "IDENTIFICADOR", new String[]{"instruccion", "instrucciones"});
+        addEntry(tablaLL1, "instrucciones", "ENTRADA_SALIDA", new String[]{"instruccion", "instrucciones"});
+        addEntry(tablaLL1, "instrucciones", "COMANDO_ACCION", new String[]{"instruccion", "instrucciones"});
+        addEntry(tablaLL1, "instrucciones", "CONDICIONAL", new String[]{"instruccion", "instrucciones"});
+        addEntry(tablaLL1, "instrucciones", "CICLO", new String[]{"instruccion", "instrucciones"});
+        addEntry(tablaLL1, "instrucciones", "LLAVE_CIERRA", new String[]{}); // ε
+
+        addEntry(tablaLL1, "instruccion", "DECLARACION_VAR", new String[]{"declaracion_variable"});
+        addEntry(tablaLL1, "instruccion", "IDENTIFICADOR", new String[]{"asignacion"});
+        addEntry(tablaLL1, "instruccion", "ENTRADA_SALIDA", new String[]{"mostrar_instr"});
+        addEntry(tablaLL1, "instruccion", "COMANDO_ACCION", new String[]{"accion"});
+        addEntry(tablaLL1, "instruccion", "CONDICIONAL", new String[]{"condicional"});
+        addEntry(tablaLL1, "instruccion", "CICLO", new String[]{"ciclo"});
+
+        addEntry(tablaLL1, "declaracion_variable", "DECLARACION_VAR", new String[]{"DECLARACION_VAR", "TIPO_DATO", "IDENTIFICADOR", "PUNTO_COMA"});
+        addEntry(tablaLL1, "asignacion", "IDENTIFICADOR", new String[]{"IDENTIFICADOR", "OP_ASIGNACION", "expresion", "PUNTO_COMA"});
+        addEntry(tablaLL1, "mostrar_instr", "ENTRADA_SALIDA", new String[]{"ENTRADA_SALIDA", "PUNTO_COMA"});
+        addEntry(tablaLL1, "accion", "COMANDO_ACCION", new String[]{"COMANDO_ACCION", "PUNTO_COMA"});
+
+        addEntry(tablaLL1, "condicional", "CONDICIONAL", new String[]{"CONDICIONAL", "SENSOR", "OP_COMPARACION", "ESTADO_SENSOR", "CONDICIONAL", "LLAVE_ABRE", "instrucciones", "LLAVE_CIERRA", "sino_opcional"});
+        addEntry(tablaLL1, "sino_opcional", "CONDICIONAL", new String[]{"CONDICIONAL", "LLAVE_ABRE", "instrucciones", "LLAVE_CIERRA"});
+        addEntry(tablaLL1, "sino_opcional", "LLAVE_CIERRA", new String[]{}); // ε
+
+        addEntry(tablaLL1, "ciclo", "CICLO", new String[]{"CICLO", "NUMERO", "LLAVE_ABRE", "instrucciones", "LLAVE_CIERRA"});
+        addEntry(tablaLL1, "expresion", "NUMERO", new String[]{"NUMERO"});
+        addEntry(tablaLL1, "expresion", "IDENTIFICADOR", new String[]{"IDENTIFICADOR"});
+        addEntry(tablaLL1, "expresion", "CADENA", new String[]{"CADENA"});
+        addEntry(tablaLL1, "expresion", "SENSOR", new String[]{"SENSOR"});
+
+            // Obtener tokens reales
+            List<String> tokensEntrada = new ArrayList<>();
+            try {
+                String codigoFuente = jtpCode.getText().trim();
+                if (codigoFuente.isEmpty()) {
+                    jtaOutputConsole.append("❌ No hay código para analizar.\n");
+                    return false;
+                }
+                File tempFile = new File("codigoTemp.wscript");
+                try (FileOutputStream fos = new FileOutputStream(tempFile)) {
+                    fos.write(codigoFuente.getBytes());
+                }
+
+                WheelScriptLexer lexer = new WheelScriptLexer(new BufferedReader(new InputStreamReader(new FileInputStream(tempFile), "UTF-8")));
+                compilerTools.Token token;
+                while ((token = lexer.yylex()) != null) {
+                    tokensEntrada.add(token.getLexicalComp());
+                }
+                tokensEntrada.add("$");
+            } catch (Exception e) {
+                jtaOutputConsole.append("❌ Error al obtener tokens del lexer: " + e.getMessage() + "\n");
+                return false;
+            }
+
+            Stack<String> pila = new Stack<>();
+            pila.push("$");
+            pila.push("programa");
+
+            int index = 0;
+            while (!pila.isEmpty()) {
+                String tope = pila.peek();
+                String simbolo = tokensEntrada.get(index);
+
+                jtaOutputConsole.append("🪜 Pila: " + pila + "\n");
+                jtaOutputConsole.append("🔎 Token actual: " + simbolo + "\n");
+
+                if (tope.equals(simbolo)) {
+                    pila.pop();
+                    index++;
+                    jtaOutputConsole.append("Emparejado: " + simbolo + "\n");
+                } else if (isTerminalLL1(tope)) {
+                    jtaOutputConsole.append("❌ Error: Se esperaba " + tope + " pero se encontró " + simbolo + "\n");
+                    return false;
+                } else {
+                    Map<String, String[]> fila = tablaLL1.get(tope);
+                    if (fila != null && fila.containsKey(simbolo)) {
+                        pila.pop();
+                        String[] produccion = fila.get(simbolo);
+                        if (produccion.length == 0) {
+                            jtaOutputConsole.append(tope + " -> ε\n");
+                        } else {
+                            jtaOutputConsole.append(tope + " -> " + String.join(" ", produccion) + "\n");
+                            // Aseguramos que si el siguiente token es un terminal (como LLAVE_ABRE), se procese correctamente
+                            for (int i = produccion.length - 1; i >= 0; i--) {
+                                pila.push(produccion[i]);
+                            }
+                        }
+                    } else {
+                        jtaOutputConsole.append("❌ Error: No hay producción para (" + tope + ", " + simbolo + ")\n");
+                        return false;
+                    }
+                }
+            }
+
+            if (index == tokensEntrada.size()) {
+                jtaOutputConsole.append("✔ Análisis sintáctico LL(1) exitoso.\n");
+                return true;
+            } else {
+                jtaOutputConsole.append("❌ Error: Tokens restantes sin analizar.\n");
+                return false;
+            }
+        }
+
+    private void addEntry(Map<String, Map<String, String[]>> tabla, String noTerminal, String terminal, String[] produccion) {
+        tabla.putIfAbsent(noTerminal, new HashMap<>());
+        tabla.get(noTerminal).put(terminal, produccion);
+    }
+
+    private boolean isTerminalLL1(String simbolo) {
+        return simbolo.matches("INICIO_PROGRAMA|LLAVE_ABRE|LLAVE_CIERRA|FIN_BLOQUE|DECLARACION_VAR|TIPO_DATO|IDENTIFICADOR|NUMERO|CADENA|OP_ASIGNACION|ENTRADA_SALIDA|COMANDO_ACCION|CONDICIONAL|SINO|SENSOR|ESTADO_SENSOR|OP_COMPARACION|PUNTO_COMA|\\$");
+    }
+
+    
     // Método para calcular el tamaño de cada tipo de dato
     private int calcularTamanoTipo(String tipo) {
         if (tipo == null) return 4;
@@ -526,7 +667,7 @@ public class Ventana_Principal extends javax.swing.JFrame {
                 return 4;
         }
     }
-
+    
     
     private void mostrarTablaDeSimbolos(){
         if (tablaSimbolos.getSimbolos().isEmpty()) {
