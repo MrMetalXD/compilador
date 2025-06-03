@@ -3,8 +3,21 @@
 //-----------------------------
 package codigo;
 
-import java_cup.runtime.*;
-import java.util.ArrayList;
+import java_cup.runtime.Symbol;
+
+
+parser code 
+{:
+    private Symbol s;
+
+    public void syntax_error(Symbol s){
+        this.s = s;
+    }
+
+    public Symbol getS(){
+        return this.s;
+    }
+:};
 
 //-----------------------------
 // Terminales sin tipos
@@ -19,27 +32,16 @@ terminal CADENA, IDENTIFICADOR, ESTADO, NUMERO;
 //-----------------------------
 non terminal programa, instrucciones, instruccion, declaracion_variable,
               asignacion, mostrar_instr, accion, condicional, sino_opcional,
-              condicion, expresion;
-
-//-----------------------------
-// Código de soporte
-//-----------------------------
-parser code {:
-    public ArrayList<String> errores = new ArrayList<>();
-
-    public void report_error(String message, Object info) {
-        errores.add("Error sintáctico: " + message);
-    }
-:};
+              condicion, expresion, mostrar_op;
 
 //-----------------------------
 // Reglas de Producción
 //-----------------------------
 programa ::= inicio llave_izq instrucciones llave_der fin
-           {: System.out.println("✔ Análisis sintáctico exitoso"); :}
+           {: System.out.println("Análisis sintáctico exitoso"); :}
            ;
 
-instrucciones ::= instruccion instrucciones | /* vacío */;
+instrucciones ::= instruccion instrucciones | ;
 
 instruccion ::= declaracion_variable | asignacion | mostrar_instr | accion | condicional;
 
@@ -55,7 +57,7 @@ accion ::= avanzar | detener | girar | retroceder;
 
 condicional ::= si condicion entonces llave_izq instrucciones llave_der sino_opcional;
 
-sino_opcional ::= sino llave_izq instrucciones llave_der | /* vacío */;
+sino_opcional ::= sino llave_izq instrucciones llave_der | ;
 
 condicion ::= IDENTIFICADOR igual ESTADO;
 
