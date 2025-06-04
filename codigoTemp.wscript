@@ -34,12 +34,6 @@ inicio {
         esperar;
     }
 
-    // Ciclo mientras
-    mientras sensor_izquierdo == activado {
-        girar;
-        avanzar;
-    }
-
     // Más acciones
     encender;
     esperar;
@@ -56,10 +50,10 @@ inicio {
         bocina;
     }
 
-    // Asignación compleja
-    velocidad = velocidad + 2;
-    distancia = distancia - 3.0;
-    intentos = intentos - 1;
+    // Asignación simple
+    velocidad = 7;
+    distancia = 7.5;
+    intentos = 2;
     mostrar;
     leer;
 }fin

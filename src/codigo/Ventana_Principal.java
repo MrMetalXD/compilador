@@ -534,7 +534,6 @@ public class Ventana_Principal extends javax.swing.JFrame {
 
         Map<String, Map<String, String[]>> tablaLL1 = new HashMap<>();
 
-        // Gramática completa adaptada a tu lexer y gramática
         addEntry(tablaLL1, "programa", "INICIO_PROGRAMA", new String[]{"INICIO_PROGRAMA", "LLAVE_ABRE", "instrucciones", "LLAVE_CIERRA", "FIN_BLOQUE"});
 
         addEntry(tablaLL1, "instrucciones", "DECLARACION_VAR", new String[]{"instruccion", "instrucciones"});
@@ -551,8 +550,8 @@ public class Ventana_Principal extends javax.swing.JFrame {
         addEntry(tablaLL1, "instruccion", "ENTRADA_SALIDA", new String[]{"mostrar_instr"});
         addEntry(tablaLL1, "instruccion", "COMANDO_ACCION", new String[]{"accion"});
         addEntry(tablaLL1, "instruccion", "CONDICIONAL", new String[]{"condicional"});
-        
         addEntry(tablaLL1, "instruccion", "CICLO", new String[]{"ciclo"});
+        addEntry(tablaLL1, "instruccion", "PALABRA_RESERVADA", new String[]{"PALABRA_RESERVADA"}); // <-- AGREGAR ESTA LÍNEA
 
         addEntry(tablaLL1, "declaracion_variable", "DECLARACION_VAR", new String[]{"DECLARACION_VAR", "TIPO_DATO", "IDENTIFICADOR", "PUNTO_COMA"});
         addEntry(tablaLL1, "asignacion", "IDENTIFICADOR", new String[]{"IDENTIFICADOR", "OP_ASIGNACION", "expresion", "PUNTO_COMA"});

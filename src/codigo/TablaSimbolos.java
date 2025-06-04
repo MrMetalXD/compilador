@@ -105,17 +105,5 @@ public class TablaSimbolos {
         public String [] toArray(){
             return new String []{nombre, tipo, tipoDato, ambito, String.valueOf(direccion)};
         }
-}
-
-    
-    
-    
-    
-  
-    
-    
-
-    
-
-    
+}  
 }
